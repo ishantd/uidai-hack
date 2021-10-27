@@ -10,6 +10,7 @@ from xml.etree.cElementTree import Element, ElementTree
 import xml.etree.ElementTree as ET 
 import os
 import requests
+import json
 
 base_url = "https://otp-stage.uidai.gov.in/uidotpserver"
 version = "2.5"
@@ -59,3 +60,19 @@ def test():
     result = otp_request_post(t)
     
     print(result)
+
+# Done
+# ||
+#  V
+def generate_captcha():
+    url = "https://stage1.uidai.gov.in/unifiedAppAuthService/api/v2/get/captcha"
+    method = "POST"
+    headers = {'Content-Type':'application/json'}
+    data = {
+        "langCode": "en",
+        "captchaLength": "3",
+        "captchaType": "2"
+    }
+    response = requests.request(method, url, headers=headers, data=json.dumps(data))
+    
+    return response.json()
