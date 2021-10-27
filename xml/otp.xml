@@ -1,0 +1,26 @@
+<?xml version='1.0'?><ns2:Otp xmlns:ns2="http://www.uidai.gov.in/authentication/otp/1.0" uid="999979102430" tid="public" ts="timestamp" ac="public" sa="public" ver="2.5" txn="uuid" lk="MAElpSz56NccNf11_wSM_RrXwa7n8_CaoWRrjYYWouA1r8IoJjuaGYg" type="A">
+    <Opts ch="01"/>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod 
+Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>4GcX/Vr04IEthlSrr6fbj8DcU4qAwJYmlVj6DLqu52Q=</DigestValue></Reference></SignedInfo><SignatureValue>Xc36GYcfGW1X8h9HO+FbqlkWFUzDguDqn8aFhWQCjGWkTaX87sI7icgVGaR8kpXQ1guIzDl2IC2J86yW85CM/mAIRxNQGpPFn0fqx0FgHiCWE7FOgj9yNw136DQ+rCfKRLiS+EACs3T197Ua0zYYcCwl72OYTXVHIJYunI+AR3dFHtLZz7lfEyNhYR/F4dhOYRKG3sXB6abE+wdoc7fzL1A4d3tSScVh0dOhrFVV66d+SEyYJehezP9hcJ349OlNBtdyxKHtJ8me9C1zgxswD2EJOVgFefeNTMip/pVnQ6JWZrtk4JIfy3iERxYNbpqgyO3PkBWJupuYekEEcq8QHg==</SignatureValue><KeyInfo><X509Data>
+    <X509SubjectName>CN=Public AUA for Staging Services,OU=Staging Services,O=Public AUA,L=Bangalore,ST=KA,C=IN</X509SubjectName>
+    <X509Certificate>MIIDuTCCAqGgAwIBAgIHBbjQqpe5NjANBgkqhkiG9w0BAQUFADCBjTELMAkGA1UE
+    BhMCSU4xCzAJBgNVBAgTAktBMRIwEAYDVQQHEwlCYW5nYWxvcmUxEzARBgNVBAoT
+    ClB1YmxpYyBBVUExGTAXBgNVBAsTEFN0YWdpbmcgU2VydmljZXMxLTArBgNVBAMT
+    JFJvb3QgUHVibGljIEFVQSBmb3IgU3RhZ2luZyBTZXJ2aWNlczAeFw0yMDA1MjUw
+    OTMyMjRaFw0yNDA1MjUwOTMyMjRaMIGIMQswCQYDVQQGEwJJTjELMAkGA1UECBMC
+    S0ExEjAQBgNVBAcTCUJhbmdhbG9yZTETMBEGA1UEChMKUHVibGljIEFVQTEZMBcG
+    A1UECxMQU3RhZ2luZyBTZXJ2aWNlczEoMCYGA1UEAxMfUHVibGljIEFVQSBmb3Ig
+    U3RhZ2luZyBTZXJ2aWNlczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+    AI+b6Gcwg0+MJP+YUePflCCEBWj3PdICPenFMqETxTACphlhPKjO2XAnWU3frp+a
+    76NBqEbZ5ZOrUeE70Dj9BHZo7gFm72BNuU5AFYwvCGzCVButExgVAe9bWO07bG1T
+    KwdPEPUzO2O8QV7YaaHFU+SfZTPRam3ycn6nfIceue9n1IH6sAdCgcfiKpgBYben
+    rG+u9bNVrvasYCXPUBqS1CzsVGv75ekdCu7vxbr3w941KO31kdCQpVVas+khAC3v
+    MKWkhR77PHoGQvx5yvsGW9QPVw+JLHabGlRNe3C4xMZ1rdCUslQ7VshQlkDQIxiu
+    9jOk+B1wexT78wtVGvunolkCAwEAAaMhMB8wHQYDVR0OBBYEFB6nQeWTHs78YZvf
+    DfnSWIuXuU2cMA0GCSqGSIb3DQEBBQUAA4IBAQAp+MnpqVO1SJ+ilCS++L7WV4AQ
+    lVTwCzHW4QyIV+6Mb50PIYhmoFXjKF7t71jvQ3WP2jocp7Ouy07+sT7Knuhy4/Rp
+    CwCSyZpKCQjfRqKPEW8CYc17TEYUxufvwBfzzOGZCTIwtgGrOC23XoVXNd+bwn1L
+    bsrb0dd98Rp3AGccwcVPp8TgwzNY2oH78HRF/ScUONebyCT+eOICVxjc73qnYvGe
+    5t25bl/kgm6NsAYimr/at7suqiMZQWp5SEfbRYCZ9wvQsJgX01g92zk3ELV9g5fb
+    O9VrKr9vN0QA7VjkrfzuCtR/MGIsYBpZzcX1vDlUscXO1u4fVROETTOSS3jc</X509Certificate>
+</X509Data></KeyInfo></Signature></ns2:Otp>
