@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 from django.core.validators import RegexValidator
 
 
@@ -9,10 +10,16 @@ class UserProfile(models.Model):
     
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE, related_name='profile')
     mobile_number = models.CharField(validators=[phone_regex], max_length=10)
-    masked_aadhar = models.CharField(max_length=4, null=True, blank=True)
+    masked_aadhaar = models.CharField(max_length=4, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
+    def __str__(self):
+            return self.user.username
 
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user_id=instance)
+post_save.connect(create_user_profile, sender=User)
 class UserVID(models.Model):
     profile = models.ForeignKey(UserProfile, null=True, blank=True, on_delete=models.SET_NULL)
     vid = models.CharField(max_length=16, null=True, blank=True)
