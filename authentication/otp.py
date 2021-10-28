@@ -9,75 +9,72 @@ import requests
 import json
 import uuid
 
-# This api is working
-def generate_captcha():
-    url = "https://stage1.uidai.gov.in/unifiedAppAuthService/api/v2/get/captcha"
-    method = "POST"
-    headers = {'Content-Type':'application/json'}
-    data = {
-        "langCode": "en",
-        "captchaLength": "3",
-        "captchaType": "2"
-    }
-    response = requests.request(method, url, headers=headers, data=json.dumps(data))
+
+class VIDWrapperAPI:
     
-    return response.json()
-
-
-
-# Done : 1. Captca Verify and Send OTP with aadhar data api
-# TODO : 2. OTP Verify and generate vid api
-
-def generate_otp(uid, captchaTxnId, captchaValue):
-    url = "https://stage1.uidai.gov.in/unifiedAppAuthService/api/v2/generate/aadhaar/otp"
-    method = "POST"
-    unique_id = str(uuid.uuid4())
-    headers = {
-        'x-request-id': f'{str(uuid.uuid4())}',
-        'appid':'MYAADHAAR',
-        'Accept-Language':'en_in',
-        'Content-Type':'application/json'
-    }
-    data = {
-        "uidNumber": uid,
-        "captchaTxnId": captchaTxnId,
-        "captchaValue": captchaValue,
-        "transactionId": f"MYAADHAAR:{str(uuid.uuid4())}"
-    }
-
-    response = requests.request(method, url, headers=headers, data=json.dumps(data))
-    print(response.status_code)
-    return response.json()
-
-
+    def __init__(self):
+        self.generate_captcha_url = "https://stage1.uidai.gov.in/unifiedAppAuthService/api/v2/get/captcha"
+        self.send_otp_url = "https://stage1.uidai.gov.in/unifiedAppAuthService/api/v2/generate/aadhaar/otp"
+        self.generate_vid_url = "https://stage1.uidai.gov.in/vidwrapper/generate"
+        self.retrieve_vid_url = "https://stage1.uidai.gov.in/vidwrapper/retrieve"
     
-# needs to be worked upon
+    def make_api_request(self, method, url, headers, data):
+        response = requests.request(method, url, headers=headers, data=json.dumps(data))
+        return response.json()
 
-def generate_vid(uid, mobile, otp, otpTxnId):
-    url =  "https://stage1.uidai.gov.in/vidwrapper/generate"
-    method = "POST"
-    headers = {'Content-Type':'application/json'}
-    data = {
-        "uid": uid,
-        "mobile": mobile,
-        "otp": otp,
-        "otpTxnId": otpTxnId
-    }
-    response = requests.request(method, url, headers=headers, data=json.dumps(data))
-    
-    return response.json()
+    def generate_captcha(self):
+        method = "POST"
+        headers = {'Content-Type':'application/json'}
+        data = {
+            "langCode": "en",
+            "captchaLength": "3",
+            "captchaType": "2"
+        }
+        response = self.make_api_request(method, self.generate_captcha_url, headers, data)
+        return response
 
 
-def retrieve_vid(uid, mobile, otp, otpTxnId):
-    url =  "https://stage1.uidai.gov.in/vidwrapper/retrieve"
-    method = "POST"
-    headers = {'Content-Type':'application/json'}
-    data = {
-        "uid": uid,
-        "mobile": mobile,
-        "otp": otp,
-        "otpTxnId": otpTxnId
-    }
-    response = requests.request(method, url, headers=headers, data=json.dumps(data))
-    
-    return response.json()
+    def send_otp(self, uid, captchaTxnId, captchaValue):
+        method = "POST"
+        headers = {
+            'x-request-id': f'{str(uuid.uuid4())}',
+            'appid':'MYAADHAAR',
+            'Accept-Language':'en_in',
+            'Content-Type':'application/json'
+        }
+        data = {
+            "uidNumber": uid,
+            "captchaTxnId": captchaTxnId,
+            "captchaValue": captchaValue,
+            "transactionId": f"MYAADHAAR:{str(uuid.uuid4())}"
+        }
+
+        response = self.make_api_request(method, self.send_otp_url, headers, data)
+        return response
+
+    def generate_vid(self, uid, mobile, otp, otpTxnId):
+        method = "POST"
+        headers = {'Content-Type':'application/json'}
+        data = {
+            "uid": uid,
+            "mobile": mobile,
+            "otp": otp,
+            "otpTxnId": otpTxnId
+        }
+        response = self.make_api_request(method, self.generate_vid_url, headers, data)
+        
+        return response
+
+
+    def retrieve_vid(self, uid, mobile, otp, otpTxnId):
+        method = "POST"
+        headers = {'Content-Type':'application/json'}
+        data = {
+            "uid": uid,
+            "mobile": mobile,
+            "otp": otp,
+            "otpTxnId": otpTxnId
+        }
+        response = self.make_api_request(method, self.retrieve_vid_url, headers, data)
+        
+        return response
