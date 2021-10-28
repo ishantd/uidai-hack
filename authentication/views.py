@@ -79,7 +79,7 @@ class GenerateVID(APIView):
             user_profile.masked_aadhaar = masked_aadhaar
             user_profile.save()
             
-            user_token = Token.objects.get_or_create(user=user)
+            user_token, user_token_created = Token.objects.get_or_create(user=user)
             
             return JsonResponse({"status": "okay", "data": data_from_api, "token": user_token.key}, status=200)
 
