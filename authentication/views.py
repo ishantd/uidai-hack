@@ -36,13 +36,15 @@ class SendOTPUsingCaptchaAndUID(APIView):
         
         data_from_api = vid.send_otp(uid, captchaTxnId, captchaValue)
         
-        if data_from_api['status'] == 'Success':
-            return JsonResponse({"status": "okay", "data": data_from_api}, status=200)
-
         if data_from_api['status'] == 'Failed':
             return JsonResponse({"status": "Failed", "data": data_from_api}, status = data_from_api['ErrorCode'])
         
-        return JsonResponse({"status": "unknow error"}, status=422)
+        if data_from_api['status'] == 'Success':
+            return JsonResponse({"status": "okay", "data": data_from_api}, status=200)
+
+        
+        
+        return JsonResponse({"status": "unknown error"}, status=422)
 
 
 class GenerateVID(APIView):
