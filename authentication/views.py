@@ -72,9 +72,9 @@ class GenerateVID(APIView):
             # Here we are creating user account:
             masked_aadhaar = uid[-4:]
             username = f'{mobileNumber}x{masked_aadhaar}'
-            user = User.objects.get_or_create(username=username)
+            user, user_created = User.objects.get_or_create(username=username)
             
-            user_profile = UserProfile.objects.get_or_create(user=user)
+            user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user)
             user_profile.mobile_number = mobileNumber
             user_profile.masked_aadhaar = masked_aadhaar
             user_profile.save()
@@ -86,7 +86,7 @@ class GenerateVID(APIView):
         if data_from_api['status'] == 'Failed':
             return JsonResponse({"status": "Failed", "data": data_from_api}, status = data_from_api['ErrorCode'])
         
-        return JsonResponse({"status": "unknow error"}, status=422)
+        return JsonResponse({"status": "unknow error", "aadhar_api_status": data_from_api['status']}, status=422)
 
 class RetrieveVID(APIView):
     permission_classes = [AllowAny]

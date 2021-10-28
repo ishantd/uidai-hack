@@ -16,10 +16,6 @@ class UserProfile(models.Model):
     def __str__(self):
             return self.user.username
 
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user_id=instance)
-post_save.connect(create_user_profile, sender=User)
 class UserVID(models.Model):
     profile = models.ForeignKey(UserProfile, null=True, blank=True, on_delete=models.SET_NULL)
     vid = models.CharField(max_length=16, null=True, blank=True)
