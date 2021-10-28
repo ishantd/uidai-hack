@@ -117,7 +117,7 @@ sudo nano /etc/nginx/sites-available/main
 
 server {
 listen 80;
-server_name api.skidfintech.com;
+server_name 3.109.35.156;
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
@@ -231,9 +231,8 @@ sudo ln -s /etc/nginx/sites-available/dev /etc/nginx/sites-enabled
 
 sudo pkill gunicorn
 sudo systemctl daemon-reload
-sudo systemctl start dev
-sudo systemctl start qa
-sudo systemctl restart dev.service
+sudo systemctl start main
+sudo systemctl restart main.service
 
 Test changes
 
