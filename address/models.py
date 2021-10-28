@@ -10,7 +10,7 @@ class TenantRequestToLandlord(models.Model):
     request_to = models.ForeignKey(UserProfile, null=True, blank=True, on_delete=models.SET_NULL, related_name='requests_from')
     request_to_mobile = models.CharField(validators=[phone_regex], max_length=10)
     
-    request_approved = models.BooleanField(default=False)
+    request_approved = models.BooleanField(default=True)
 
     created_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)

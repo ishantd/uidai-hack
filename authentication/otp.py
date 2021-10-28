@@ -78,3 +78,6 @@ class VIDWrapperAPI:
         response = self.make_api_request(method, self.retrieve_vid_url, headers, data)
         
         return response
+
+
+    
