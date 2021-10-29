@@ -77,9 +77,9 @@ class RetrieveVID(APIView):
     
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
-        mobileNumber = request.data.get('mobileNumber', False) 
         txnId = request.data.get('txnId', False)
         otp = request.data.get('otp', False)
+        mobileNumber = request.data.get('mobileNumber', False)
         
         if not (uid and mobileNumber and txnId and otp):
             return JsonResponse({"status": "not enough data"}, status=400)
@@ -95,5 +95,5 @@ class RetrieveVID(APIView):
         if data_from_api['status'] == 'Failed':
             return JsonResponse({"status": "Failed", "data": data_from_api}, status = data_from_api['ErrorCode'])
         
-        return JsonResponse({"status": "unknow error"}, status=422)
+        return JsonResponse({"status": "unknown error"}, status=422)
         
