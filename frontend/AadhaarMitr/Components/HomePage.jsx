@@ -4,21 +4,8 @@ import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity,
 //import axios from 'axios';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-
-function Request(props) {
-    return (
-        <View style={styles.requestBox}>
-            <View style={styles.requestIcon}/>
-            <View style={styles.requestText}>
-                <Text style={styles.requestTitle}>{props.name}</Text>
-                <Text style={styles.requestSubtitle}>{props.aadhaar}</Text>
-            </View>
-            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash}>
-                <Ionicons name={'trash'} size={32} color={'#FFFFFF'}/> 
-            </TouchableOpacity>
-        </View>
-    );
-}
+import { RequestIncoming, RequestOutgoing } from './RequestPages';
+import * as Animatable from 'react-native-animatable';
 
 function HomePage(props) {
     const [aadhaar, setAadhaar] = useState("");
@@ -29,6 +16,16 @@ function HomePage(props) {
     const navigation = useNavigation();
     const focused = useIsFocused();
 
+    const transition = { 0: { opacity: 0 }, 1: { opacity: 1 } };
+    const slideIn = { 0: { translateY: Dimensions.get('window').height }, 1: { translateY: 0 } };
+
+    const transitionOut = { 0: { opacity: 0.4 }, 1: { opacity: 0 } };
+    const slideOut = { 0: { translateY: 0 }, 1: { translateY: Dimensions.get('window').height } };
+
+    const [backgroundAnimation, setBackgroundAnimation] = useState(transition);
+    const [pageAnimation, setPageAnimation] = useState(slideIn);
+    const [closing, setClosing] = useState(false);
+
     useEffect(() => {
     }, []);
 
@@ -38,39 +35,43 @@ function HomePage(props) {
                 <View style={styles.userIcon}/>
                 <View style={styles.userText}>
                     <Text style={styles.userTitle}>{'Ishant Dahiya'}</Text>
+                    <Text style={styles.userSubSubtitle}>{'9654-594-034'}</Text>
                     <Text style={styles.userSubtitle}>{'XXXX-XXXX-35612'}</Text>
                 </View>
             </View>
             <View style={styles.requestSection}>
                 <Text style={styles.titleText}>{'Pending Requests'}</Text>
-                <Request aadhaar={'XXXX-XXXX-45015'} name={'Kshitij Vikram Singh'}/>
+                <ScrollView style={{ maxHeight: 160 }}>
+                    <RequestIncoming phone={'9818-220-492'} name={'Kshitij Vikram Singh'}/>
+                </ScrollView>
                 <Text style={styles.viewAllRequests} onPress={() => navigation.navigate("RequestsScreen")}>{'View All Requests'}</Text>
-            </View>
-            <Text style={styles.titleText}>{'Aadhaar Actions'}</Text>
-            <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => setShowBottomDrawer(true)}>
+            </View> 
+            <Text style={styles.titleText}>{'Aadhaar Services'}</Text>
+            <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }}>
                 <Ionicons name={'location'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Request Address From Landlord'}</Text>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("OTPScreen") }}>
+            {/*}<TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("OTPScreen") }}>
                 <Ionicons name={'document-attach'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Update Address With Documents'}</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
             {
                 showBottomDrawer ? 
-                <View style={styles.cardBackground}>
-                    <View style={styles.card}>
-                        <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => setShowBottomDrawer(false)}>
+                <React.Fragment>
+                    <Animatable.View style={styles.cardBackground} animation={backgroundAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}/>
+                    <Animatable.View style={styles.card} animation={pageAnimation} duration={400} easing={'ease-out-quad'} useNativeDriver={true} onAnimationEnd={() => { if (closing) setShowBottomDrawer(false); }}>
+                        <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
                             <Ionicons name={'close'} size={24} color={'#000000'}/>
                         </TouchableOpacity>
                         <Text style={styles.cardTitle}>{'Request Address From Landlord'}</Text>
                         <Text style={styles.cardSubtitle}>{'Enter your Landlord\'s Phone Number to request their address.'}</Text>
                         <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={10} style={styles.inputBox} placeholder={"Phone Number"} value={landlordNumber} onChangeText={(text) => setLandlordNumber(text)}/>
-                        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("OTPScreen") }}>
+                        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
                             <Ionicons name={'paper-plane'} size={24} color={'#FFFFFF'}/> 
                             <Text style={styles.buttonText}>{'Request Address'}</Text>
                         </TouchableOpacity>
-                    </View>
-                </View> : null
+                    </Animatable.View>
+                </React.Fragment> : null
             }
         </View>
     );
@@ -180,6 +181,17 @@ const styles = StyleSheet.create({
         letterSpacing: 4,
     },
 
+    userSubSubtitle: {
+        marginTop: 8,
+
+        fontSize: 16,
+        fontFamily: 'Roboto_400Regular',
+
+        color: '#0245CB',
+
+        letterSpacing: 1
+    },
+
     titleText: {
         fontSize: 18,
         fontFamily: 'Sora_600SemiBold',
@@ -230,68 +242,6 @@ const styles = StyleSheet.create({
 
     requestSection: {
         marginBottom: 32
-    },
-
-    requestBox: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#0245CB',
-        borderWidth: 2,
-
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-
-        flexDirection: 'row',
-
-        marginHorizontal: '5%',
-        width: '90%',
-        height: 96,
-
-        borderRadius: 8,
-
-        marginTop: 16,
-        marginBottom: 16
-    },
-
-    requestIcon: {
-        backgroundColor: '#000000',
-        borderRadius: 32,
-
-        width: 64,
-        height: 64,
-
-        marginHorizontal: 16
-    },
-
-    requestText: {
-        flex: 4
-    },
-
-    requestTitle: {
-        fontSize: 18,
-        fontFamily: 'Sora_600SemiBold',
-    },
-
-    requestSubtitle: {
-        marginTop: 8,
-
-        fontSize: 16,
-        fontFamily: 'Roboto_400Regular',
-
-        letterSpacing: 4,
-    },
-
-    requestTrash: {
-        flex: 1, 
-        height: 96,
-        marginRight: -2,
-
-        borderTopRightRadius: 8,
-        borderBottomRightRadius: 8,
-
-        backgroundColor: '#0245CB',
-
-        justifyContent: 'center',
-        alignItems: 'center'
     },
 
     inputBox: {
