@@ -17,14 +17,14 @@ function OTPScreen(props) {
         setMobile(props.route.params.mobile);
     }, []);
 
-    const generateVID = () => {
+    /*const getEKYC = () => {
         const requestOptions = {
             method: 'post',
-            url: '/api/vid/generate/',
+            url: '/api/accounts/ekyc/get-ekyc/',
             data: { uid: data.uidNumber, mobileNumber: mobile, txnId: data.txnId, otp: OTP }
         }
         axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); navigation.navigate("HomeScreen", { vid: response.data.data.vid, aadhaar: data.uidNumber, mobile: mobile }); }).catch((error) => console.error(error));
-    }
+    }*/
 
     return (
       <View style={styles.page}>
@@ -66,7 +66,7 @@ function LoginScreen(props) {
     const getCaptcha = () => {
         const requestOptions = {
             method: 'get',
-            url: '/api/vid/generate-captcha/',
+            url: '/api/accounts/ekyc/generate-captcha/',
         }
         axiosUnauthorizedInstance(requestOptions).then((response) => { setCaptchaImage(response.data.data.captchaBase64String); setCaptchaTxnId(response.data.data.captchaTxnId); }).catch((error) => console.error(error));
     }
@@ -74,7 +74,7 @@ function LoginScreen(props) {
     const sendOTP = () => {
         const requestOptions = {
             method: 'post',
-            url: '/api/vid/send-otp/',
+            url: '/api/accounts/ekyc/send-otp/',
             data: { uid: aadhaar, captchaTxnId: captchaTxnId, captchaValue: captcha }
         }
         axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); navigation.navigate("OTPScreen", { data: response.data, mobile: mobile }); }).catch((error) => console.error(error));

@@ -30,7 +30,8 @@ function HomePage(props) {
     }, []);
 
     return (
-        <View style={styles.page}>
+        <React.Fragment>
+        <ScrollView style={styles.page} contentContainerStyle={styles.pageContainer}>
             <View style={styles.userBox}>
                 <View style={styles.userIcon}/>
                 <View style={styles.userText}>
@@ -51,29 +52,34 @@ function HomePage(props) {
                 <Ionicons name={'location'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Request Address From Landlord'}</Text>
             </TouchableOpacity>
-            {/*}<TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("OTPScreen") }}>
+            <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("AddressSharingScreen") }}>
+                <Ionicons name={'person'} size={24} color={'#FFFFFF'}/> 
+                <Text style={styles.buttonText}>{'Accounts Linked To My Address'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("OTPScreen") }}>
                 <Ionicons name={'document-attach'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Update Address With Documents'}</Text>
-            </TouchableOpacity>*/}
-            {
-                showBottomDrawer ? 
-                <React.Fragment>
-                    <Animatable.View style={styles.cardBackground} animation={backgroundAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}/>
-                    <Animatable.View style={styles.card} animation={pageAnimation} duration={400} easing={'ease-out-quad'} useNativeDriver={true} onAnimationEnd={() => { if (closing) setShowBottomDrawer(false); }}>
-                        <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
-                            <Ionicons name={'close'} size={24} color={'#000000'}/>
-                        </TouchableOpacity>
-                        <Text style={styles.cardTitle}>{'Request Address From Landlord'}</Text>
-                        <Text style={styles.cardSubtitle}>{'Enter your Landlord\'s Phone Number to request their address.'}</Text>
-                        <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={10} style={styles.inputBox} placeholder={"Phone Number"} value={landlordNumber} onChangeText={(text) => setLandlordNumber(text)}/>
-                        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
-                            <Ionicons name={'paper-plane'} size={24} color={'#FFFFFF'}/> 
-                            <Text style={styles.buttonText}>{'Request Address'}</Text>
-                        </TouchableOpacity>
-                    </Animatable.View>
-                </React.Fragment> : null
-            }
-        </View>
+            </TouchableOpacity>
+        </ScrollView>
+        {
+            showBottomDrawer ? 
+            <React.Fragment>
+                <Animatable.View style={styles.cardBackground} animation={backgroundAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}/>
+                <Animatable.View style={styles.card} animation={pageAnimation} duration={400} easing={'ease-out-quad'} useNativeDriver={true} onAnimationEnd={() => { if (closing) setShowBottomDrawer(false); }}>
+                    <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
+                        <Ionicons name={'close'} size={24} color={'#000000'}/>
+                    </TouchableOpacity>
+                    <Text style={styles.cardTitle}>{'Request Address From Landlord'}</Text>
+                    <Text style={styles.cardSubtitle}>{'Enter your Landlord\'s Phone Number to request their address.'}</Text>
+                    <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={10} style={styles.inputBox} placeholder={"Phone Number"} value={landlordNumber} onChangeText={(text) => setLandlordNumber(text)}/>
+                    <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
+                        <Ionicons name={'paper-plane'} size={24} color={'#FFFFFF'}/> 
+                        <Text style={styles.buttonText}>{'Request Address'}</Text>
+                    </TouchableOpacity>
+                </Animatable.View>
+            </React.Fragment> : null
+        }
+        </React.Fragment>
     );
 }
 
@@ -81,10 +87,12 @@ export default HomePage;
 
 const styles = StyleSheet.create({
     page: {
-        flex: 1,
-        justifyContent: 'flex-end',
         backgroundColor: '#FFFFFF',
-        paddingBottom: 48
+    },
+
+    pageContainer: {
+        paddingTop: 32,
+        paddingBottom: 32
     },
 
     card: {
@@ -135,9 +143,6 @@ const styles = StyleSheet.create({
     },
 
     userBox: {
-        position: 'absolute',
-        top: 48,
-
         justifyContent: 'center',
         alignItems: 'center',
 
@@ -146,8 +151,8 @@ const styles = StyleSheet.create({
         marginHorizontal: '5%',
         width: '90%',
 
-        marginTop: 16,
-        marginBottom: 16
+        marginTop: 48,
+        marginBottom: 48
     },
 
     userText: {
