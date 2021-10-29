@@ -67,6 +67,14 @@ class GetEKYC(APIView):
         data_from_api = ekyc.get_ekyc(uid, otp, txnId, share_code)
         
         if data_from_api['status'] == 'Success':
+            #b64 data to file object
+    
+            # save file to either localstorage or s3
+            
+            # record ekyc transaction and file location
+            
+                    
+            
             return JsonResponse({"status": "okay", "data": data_from_api}, status=200)
 
         if data_from_api['status'] == 'Failed':
