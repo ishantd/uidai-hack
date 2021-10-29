@@ -10,14 +10,15 @@ import { View } from 'react-native';
 import HomePage from './Components/HomePage';
 import { InboundRequestScreen, OutboundboundRequestScreen } from './Components/RequestPages';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { PasscodeCaptchaScreen, PasscodeOTPScreen, PasscodeScreen } from './Components/PasscodePage';
 
 const Tab = createMaterialTopTabNavigator();
 
 function RequestsScreens() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Incoming" component={InboundRequestScreen} />
-      <Tab.Screen name="Outgoing" component={OutboundboundRequestScreen} />
+      <Tab.Screen name="Recieved" component={InboundRequestScreen} />
+      <Tab.Screen name="Sent" component={OutboundboundRequestScreen} />
     </Tab.Navigator>
   );
 }
@@ -40,6 +41,9 @@ function App() {
           <Stack.Screen name="OTPScreen" component={OTPScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="HomeScreen" component={HomePage} options={{ headerShown: false }}/>
           <Stack.Screen name="RequestsScreen" component={RequestsScreens} options={{ title: 'Requests' }}/>
+          <Stack.Screen name="PasscodeCaptchaScreen" component={PasscodeCaptchaScreen} options={{ title: 'Accept Address Request', headerLeft: null }}/>
+          <Stack.Screen name="PasscodeOTPScreen" component={PasscodeOTPScreen} options={{ title: 'Accept Address Request', headerLeft: null }}/>
+          <Stack.Screen name="PasscodeScreen" component={PasscodeScreen} options={{ title: 'Accept Address Request', headerLeft: null }}/>
         </Stack.Navigator>
       </NavigationContainer>
     );
