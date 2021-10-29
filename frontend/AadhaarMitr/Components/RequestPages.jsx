@@ -1,17 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
-//import axiosInstance, { setClientToken } from '../axiosConfig';
-//import axios from 'axios';
+import { axiosUnauthorizedInstance } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
-function Request(props) {
+function RequestOutgoing(props) {
     return (
         <View style={styles.requestBox}>
             <View style={styles.requestIcon}/>
             <View style={styles.requestText}>
                 <Text style={styles.requestTitle}>{props.name}</Text>
-                <Text style={styles.requestSubtitle}>{props.aadhaar}</Text>
+                <Text style={styles.requestSubtitle}>{props.phone}</Text>
             </View>
             <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash}>
                 <Ionicons name={'trash'} size={32} color={'#FFFFFF'}/> 
@@ -20,12 +19,33 @@ function Request(props) {
     );
 }
 
-function InboundRequestScreen(props) {
-    const [aadhaar, setAadhaar] = useState("");
-    const [captcha, setCaptcha] = useState("");
-    const [showBottomDrawer, setShowBottomDrawer] = useState(false);
-    const [landlordNumber, setLandlordNumber] = useState('');
+function RequestIncoming(props) {
+    const navigation = useNavigation();
 
+    return (
+        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={styles.requestIcon}/>
+                <View style={styles.requestText}>
+                    <Text style={styles.requestTitle}>{props.name}</Text>
+                    <Text style={styles.requestSubtitle}>{props.phone}</Text>
+                </View>
+            </View>
+            <View style={styles.requestButtons}>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8 }]} onPress={() => navigation.navigate("PasscodeCaptchaScreen")}>
+                    <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/>
+                    <Text style={styles.requestButtonText}>{'Accept'}</Text> 
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { backgroundColor: '#FFFFFF', borderBottomRightRadius: 8 }]}>
+                    <Ionicons name={'close-circle'} size={24} color={'#000000'}/> 
+                    <Text style={[styles.requestButtonText, { color: '#000000' }]}>{'Decline'}</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+}
+
+function InboundRequestScreen(props) {
     const navigation = useNavigation();
     const focused = useIsFocused();
 
@@ -35,18 +55,13 @@ function InboundRequestScreen(props) {
     return (
         <View style={styles.page}>
             <View style={styles.requestSection}>
-                <Request aadhaar={'XXXX-XXXX-45015'} name={'Kshitij Vikram Singh'}/>
+                <RequestIncoming phone={'9643-099-621'} name={'Kshitij Vikram Singh'}/>
             </View>
         </View>
     );
 }
 
 function OutboundboundRequestScreen(props) {
-    const [aadhaar, setAadhaar] = useState("");
-    const [captcha, setCaptcha] = useState("");
-    const [showBottomDrawer, setShowBottomDrawer] = useState(false);
-    const [landlordNumber, setLandlordNumber] = useState('');
-
     const navigation = useNavigation();
     const focused = useIsFocused();
 
@@ -56,13 +71,13 @@ function OutboundboundRequestScreen(props) {
     return (
         <View style={styles.page}>
             <View style={styles.requestSection}>
-                <Request aadhaar={'XXXX-XXXX-45015'} name={'Kshitij Vikram Singh'}/>
+                <RequestOutgoing phone={'9643-099-621'} name={'Kshitij Vikram Singh'}/>
             </View>
         </View>
     );
 }
 
-export { InboundRequestScreen, OutboundboundRequestScreen };
+export { InboundRequestScreen, OutboundboundRequestScreen, RequestOutgoing, RequestIncoming };
 
 const styles = StyleSheet.create({
     page: {
@@ -277,6 +292,32 @@ const styles = StyleSheet.create({
 
         justifyContent: 'center',
         alignItems: 'center'
+    },
+
+    requestButtons: {
+        flexDirection: 'row',
+        marginTop: 8,
+        marginBottom: -18,
+        marginLeft: -2, 
+        marginRight: 0,
+    },
+
+    requestButton: {
+        flex: 1,
+        backgroundColor: '#0245CB',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+
+        paddingVertical: 8,
+    },
+
+    requestButtonText: {
+        fontSize: 18,
+        fontFamily: 'Sora_600SemiBold',
+
+        color: '#FFFFFF',
+        marginLeft: 8,
     },
 
     inputBox: {
