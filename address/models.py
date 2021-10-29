@@ -33,19 +33,27 @@ class District(models.Model):
     active = models.BooleanField(default=False)
 
 class Address(models.Model):
-    line_1 = models.TextField(null=True, blank=True)
-    line_2 = models.TextField(null=True, blank=True)
+    house = models.TextField(null=True, blank=True)
+    street = models.CharField(max_length=255, null=True, blank=True)
+    landmark = models.TextField(max_length=255, null=True, blank=True)
     locality = models.CharField(max_length=255, null=True, blank=True)
-    pincode = models.CharField(max_length=6, null=True, blank=True)
+    subDistrict = models.CharField(max_length=255, null=True, blank=True)
+    district = models.CharField(max_length=255, null=True, blank=True)
+    postOffice = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=255, null=True, blank=True)
     state = models.CharField(max_length=255, null=True, blank=True)
     country = models.CharField(max_length=255, null=True, blank=True)
+    pincode = models.CharField(max_length=6, null=True, blank=True)
+    
+    address_object = models.JSONField(null=True, blank=True)
+    
     
     def __str__(self):
         return f'{self.line_1} {self.line_2}'
 
 class UserRentedAddress(models.Model):
-    address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.SET_NULL)
+    rented_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.SET_NULL, related_name='rented')
+    original_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.SET_NULL, related_name='original')
     request_id = models.ForeignKey(TenantRequestToLandlord, null=True, blank=True, on_delete=models.SET_NULL)
     created_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
