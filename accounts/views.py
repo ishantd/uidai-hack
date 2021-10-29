@@ -14,6 +14,7 @@ from address.models import TenantRequestToLandlord, Address, State, District, Us
 
 import datetime
 import base64
+import uuid
 
 
 class GenerateCaptchaforEkyc(APIView):
@@ -104,15 +105,16 @@ class GetEKYC(APIView):
         return JsonResponse({"status": "unknown error"}, status=422)
 
 class FastKYCSendOtp(APIView):
-    
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
         mobileNumber = request.data.get('mobileNumber', False)
         
         ekyc = FastKyc()
-        otp_response = ekyc.generate_otp(uid)
+        txnId = str(uuid.uuid4())
+        otp_response = ekyc.generate_otp(uid, txnId)
         
-        if otp_response['status'] == 'y':
+        if otp_response['status'] == 'y' or 'Y':
             masked_aadhaar = uid[-4:]
             username = f'{mobileNumber}x{masked_aadhaar}'
             user, user_created = User.objects.get_or_create(username=username)
@@ -123,14 +125,14 @@ class FastKYCSendOtp(APIView):
             user_profile.save()
             
             
-            return JsonResponse({"status": "okay", "data": otp_response}, status=200)
+            return JsonResponse({"status": "okay", "data": otp_response, "txnId": txnId}, status=200)
 
-        if otp_response['status'] == 'n':
-            return JsonResponse({"status": "Failed", "data":otp_response}, status =400)
-        return JsonResponse({"status": "Unknown Error", "data":otp_response}, status =422)
+        if otp_response['status'] == 'n' or 'N':
+            return JsonResponse({"status": "Failed", "data":otp_response, "txnId": txnId}, status =400)
+        return JsonResponse({"status": "Unknown Error", "data":otp_response, "txnId": txnId}, status =422)
 
 class FastKYCVerifyOtp(APIView):
-    
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
         mobileNumber = request.data.get('mobileNumber', False)
@@ -143,7 +145,7 @@ class FastKYCVerifyOtp(APIView):
         ekyc = FastKyc()
         otp_response = ekyc.verify_otp(uid, txnId, otp)
         
-        if otp_response['status'] == 'y':
+        if otp_response['status'] == 'y' or 'Y':
             masked_aadhaar = uid[-4:]
             username = f'{mobileNumber}x{masked_aadhaar}'
             user, user_created = User.objects.get_or_create(username=username)
@@ -152,12 +154,12 @@ class FastKYCVerifyOtp(APIView):
             
             return JsonResponse({"status": "okay", "data": otp_response, "token": user_token.key}, status=200)
 
-        if otp_response['status'] == 'n':
+        if otp_response['status'] == 'n' or 'N':
             return JsonResponse({"status": "Failed", "data":otp_response}, status =400)
         return JsonResponse({"status": "Unknown Error", "data":otp_response}, status =422)
 
 class FastKYCEKyc(APIView):
-    
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
         mobileNumber = request.data.get('mobileNumber', False)
@@ -170,14 +172,16 @@ class FastKYCEKyc(APIView):
         ekyc = FastKyc()
         otp_response = ekyc.get_ekyc(uid, txnId, otp)
         
-        if otp_response['status'] == 'y':
+        if otp_response['status'] == 'y' or 'Y':
             masked_aadhaar = uid[-4:]
             username = f'{mobileNumber}x{masked_aadhaar}'
             user, user_created = User.objects.get_or_create(username=username)
             
             user_token, user_token_created = Token.objects.get_or_create(user=user)
             
-            return JsonResponse({"status": "okay", "data": otp_response, "token": user_token.key}, status=200)
+            kyc, kyc_created = UserKYC.objects.get_or_create(user=user, xml_raw_data=otp_response["eKycString"])
+            
+            return JsonResponse({"status": "okay", "token": user_token.key}, status=200)
 
         if otp_response['errCode']:
             return JsonResponse({"status": "Failed", "data":otp_response}, status =400)
