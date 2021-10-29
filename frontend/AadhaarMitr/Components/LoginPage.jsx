@@ -9,22 +9,25 @@ function OTPScreen(props) {
     const [OTP, setOTP] = useState("");
     const [data, setData] = useState();
     const [mobile, setMobile] = useState();
+    const [aadhaar, setAadhaar] = useState();
 
     const navigation = useNavigation();
 
     useEffect(() => {
-        setData(props.route.params.data.data);
+        setData(props.route.params.data);
         setMobile(props.route.params.mobile);
+        setAadhaar(props.route.params.uid);
     }, []);
 
-    /*const getEKYC = () => {
+    const getEKYC = () => {
+        console.log(data);
         const requestOptions = {
             method: 'post',
-            url: '/api/accounts/ekyc/get-ekyc/',
-            data: { uid: data.uidNumber, mobileNumber: mobile, txnId: data.txnId, otp: OTP }
+            url: '/api/accounts/new-ekyc/get-ekyc/',
+            data: { uid: aadhaar, mobileNumber: mobile, txnId: data.txnId, otp: OTP }
         }
-        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); navigation.navigate("HomeScreen", { vid: response.data.data.vid, aadhaar: data.uidNumber, mobile: mobile }); }).catch((error) => console.error(error));
-    }*/
+        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); navigation.navigate("HomeScreen"); }).catch((error) => console.error(error));
+    }
 
     return (
       <View style={styles.page}>
@@ -33,7 +36,7 @@ function OTPScreen(props) {
         <Text style={styles.subheading}>{'Enter the OTP your received on your phone.'}</Text>
         <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={6} style={styles.inputBox} placeholder={"Enter OTP"} value={OTP} onChangeText={(text) => setOTP(text)}/>
         <Text style={styles.resendText}>Resend OTP</Text>
-        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => generateVID()}>
+        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => getEKYC()}>
             <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/> 
             <Text style={styles.buttonText}>{'Verify'}</Text>
         </TouchableOpacity>
@@ -50,7 +53,7 @@ function LoginScreen(props) {
     const [captchaTxnId, setCaptchaTxnId] = useState('');
 
     const navigation = useNavigation();
-    const focused = useIsFocused();
+    /*const focused = useIsFocused();
 
     useEffect(() => {
         getCaptcha();
@@ -61,23 +64,23 @@ function LoginScreen(props) {
             getCaptcha();
             setCaptcha("");
         } 
-    }, [focused]);
+    }, [focused]);*/
 
-    const getCaptcha = () => {
+    /*const getCaptcha = () => {
         const requestOptions = {
             method: 'get',
             url: '/api/accounts/ekyc/generate-captcha/',
         }
         axiosUnauthorizedInstance(requestOptions).then((response) => { setCaptchaImage(response.data.data.captchaBase64String); setCaptchaTxnId(response.data.data.captchaTxnId); }).catch((error) => console.error(error));
-    }
+    }*/
 
     const sendOTP = () => {
         const requestOptions = {
             method: 'post',
-            url: '/api/accounts/ekyc/send-otp/',
-            data: { uid: aadhaar, captchaTxnId: captchaTxnId, captchaValue: captcha }
+            url: '/api/accounts/new-ekyc/send-otp/',
+            data: { uid: aadhaar, mobileNumber: mobile/*, captchaTxnId: captchaTxnId, captchaValue: captcha*/ }
         }
-        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); navigation.navigate("OTPScreen", { data: response.data, mobile: mobile }); }).catch((error) => console.error(error));
+        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); navigation.navigate("OTPScreen", { uid: aadhaar, data: response.data, mobile: mobile }); }).catch((error) => console.error(error));
     }
 
     return (
@@ -87,13 +90,13 @@ function LoginScreen(props) {
         <Text style={styles.subheading}>{'Enter your Aadhaar and Phone Number to continue.'}</Text>
         <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={12} style={styles.inputBox} placeholder={"Aadhaar Number"} value={aadhaar} onChangeText={(text) => setAadhaar(text)}/>
         <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={10} style={styles.inputBox} placeholder={"Phone Number"} value={mobile} onChangeText={(text) => setMobile(text)}/>
-        <View style={styles.captcha}>
+        {/*}<View style={styles.captcha}>
             <Image style={{ width: 180, height: 50, flex: 5, resizeMode: 'contain' }} source={{ uri: `data:image/png;base64,${captchaImage}` }}/>
             <TouchableOpacity activeOpacity={0.9} style={styles.refreshCaptcha} onPress={() => getCaptcha()}>
                 <Ionicons name={'refresh-circle'} size={32} color={'#FFFFFF'}/> 
             </TouchableOpacity>
         </View>
-        <TextInput autoCapitalize='none' autoCorrect={false} style={styles.inputBox} placeholder={"Captcha"} value={captcha} onChangeText={(text) => setCaptcha(text)}/>
+    <TextInput autoCapitalize='none' autoCorrect={false} style={styles.inputBox} placeholder={"Captcha"} value={captcha} onChangeText={(text) => setCaptcha(text)}/>*/}
         <Text style={[styles.resendText, { color: '#FFFFFF' }]}>Resend OTP</Text>
         <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => sendOTP()}>
             <Ionicons name={'send'} size={24} color={'#FFFFFF'}/> 
