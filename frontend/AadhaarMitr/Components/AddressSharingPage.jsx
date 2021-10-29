@@ -6,10 +6,11 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 
 function RequestAccepted(props) {
-    const navigation = useNavigation();
+    const [expanded, setExpanded] = useState(false);
 
     return (
-        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]}>
+        !expanded ?
+        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center' }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                 <View style={styles.requestIcon}/>
                 <View style={styles.requestText}>
@@ -18,121 +19,46 @@ function RequestAccepted(props) {
                 </View>
             </View>
             <View style={styles.requestButtons}>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8 }]} onPress={() => props.accessAddress()}>
-                    <Ionicons name={'lock-closed'} size={24} color={'#FFFFFF'}/>
-                    <Text style={styles.requestButtonText}>{'Access Address'}</Text> 
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]} onPress={() => setExpanded(true)}>
+                    <Ionicons name={'eye'} size={24} color={'#FFFFFF'}/>
+                    <Text style={styles.requestButtonText}>{'View Address'}</Text> 
                 </TouchableOpacity>
             </View>
-        </View>
-    );
-}
-
-function RequestOutgoing(props) {
-    return (
-        <View style={styles.requestBox}>
-            <View style={styles.requestIcon}/>
-            <View style={styles.requestText}>
-                <Text style={styles.requestTitle}>{props.name}</Text>
-                <Text style={styles.requestSubtitle}>{props.phone}</Text>
-            </View>
-            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash}>
-                <Ionicons name={'trash'} size={32} color={'#FFFFFF'}/> 
-            </TouchableOpacity>
-        </View>
-    );
-}
-
-function RequestIncoming(props) {
-    const navigation = useNavigation();
-
-    return (
-        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]}>
+        </View> : 
+        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center' }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                 <View style={styles.requestIcon}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
+                    <View style={{ marginVertical: 12 }}>
+                        <Text style={styles.requestAddress}>{'F 53 Road No. 2 Andrews Ganj'}</Text>
+                        <Text style={styles.requestAddress}>{'New Delhi, Delhi, India'}</Text>
+                        <Text style={styles.requestAddress}>{'Near Ansal Plaza, 110049'}</Text>
+                    </View>
                 </View>
             </View>
             <View style={styles.requestButtons}>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8 }]} onPress={() => navigation.navigate("PasscodeCaptchaScreen")}>
-                    <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/>
-                    <Text style={styles.requestButtonText}>{'Accept'}</Text> 
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { backgroundColor: '#FFFFFF', borderBottomRightRadius: 8 }]}>
-                    <Ionicons name={'close-circle'} size={24} color={'#000000'}/> 
-                    <Text style={[styles.requestButtonText, { color: '#000000' }]}>{'Decline'}</Text>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]} onPress={() => setExpanded(false)}>
+                    <Ionicons name={'eye-off'} size={24} color={'#FFFFFF'}/>
+                    <Text style={styles.requestButtonText}>{'Hide Address'}</Text> 
                 </TouchableOpacity>
             </View>
         </View>
     );
 }
 
-function InboundRequestScreen(props) {
-    const navigation = useNavigation();
-    const focused = useIsFocused();
-
-    useEffect(() => {
-    }, []);
-
+function AddressSharingScreen(props) {
     return (
         <View style={styles.page}>
-            <View style={styles.requestSection}>
-                <RequestIncoming phone={'9643-099-621'} name={'Kshitij Vikram Singh'}/>
+            <View style={styles.requestSectionEmpty}>
+                <Text style={[styles.viewAllRequests, { color: '#00000088' }]}>No Accounts Linked To Your Address</Text>
             </View>
         </View>
     );
 }
 
-function OutboundboundRequestScreen(props) {
-    const navigation = useNavigation();
-    const focused = useIsFocused();
-
-    const [showBottomDrawer, setShowBottomDrawer] = useState(false);
-    const [passcode, setPasscode] = useState('');
-
-    const transition = { 0: { opacity: 0 }, 1: { opacity: 1 } };
-    const slideIn = { 0: { translateY: Dimensions.get('window').height }, 1: { translateY: 0 } };
-
-    const transitionOut = { 0: { opacity: 0.4 }, 1: { opacity: 0 } };
-    const slideOut = { 0: { translateY: 0 }, 1: { translateY: Dimensions.get('window').height } };
-
-    const [backgroundAnimation, setBackgroundAnimation] = useState(transition);
-    const [pageAnimation, setPageAnimation] = useState(slideIn);
-    const [closing, setClosing] = useState(false);
-
-    useEffect(() => {
-    }, []);
-
-    return (
-        <View style={styles.page}>
-            <View style={styles.requestSection}>
-                <RequestOutgoing phone={'9643-099-621'} name={'Kshitij Vikram Singh'}/>
-                <RequestAccepted phone={'9643-099-621'} name={'Kshitij Vikram Singh'} accessAddress={() => { setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }}/>
-            </View>
-            {
-                showBottomDrawer ? 
-                <React.Fragment>
-                    <Animatable.View style={styles.cardBackground} animation={backgroundAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}/>
-                    <Animatable.View style={styles.card} animation={pageAnimation} duration={400} easing={'ease-out-quad'} useNativeDriver={true} onAnimationEnd={() => { if (closing) setShowBottomDrawer(false) }}>
-                        <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
-                            <Ionicons name={'close'} size={24} color={'#000000'}/>
-                        </TouchableOpacity>
-                        <Text style={styles.cardTitle}>{'Enter Your Passcode'}</Text>
-                        <Text style={styles.cardSubtitle}>{'Please enter the 4 digit passcode obtained from your Landlord to access their address.'}</Text>
-                        <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={4} style={styles.inputBox} placeholder={"Enter Passcode"} value={passcode} onChangeText={(text) => setPasscode(text)}/>
-                        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("AddressScreen"), 500); }}>
-                            <Ionicons name={'lock-open'} size={24} color={'#FFFFFF'}/> 
-                            <Text style={styles.buttonText}>{'Proceed'}</Text>
-                        </TouchableOpacity>
-                    </Animatable.View>
-                </React.Fragment> : null
-            }
-        </View>
-    );
-}
-
-export { InboundRequestScreen, OutboundboundRequestScreen, RequestOutgoing, RequestIncoming };
+export default AddressSharingScreen;
 
 const styles = StyleSheet.create({
     page: {
@@ -287,6 +213,12 @@ const styles = StyleSheet.create({
         marginBottom: 32
     },
 
+    requestSectionEmpty: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+    },
+
     requestBox: {
         backgroundColor: '#FFFFFF',
         borderColor: '#0245CB',
@@ -299,7 +231,6 @@ const styles = StyleSheet.create({
 
         marginHorizontal: '5%',
         width: '90%',
-        height: 96,
 
         borderRadius: 8,
 
@@ -314,7 +245,8 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
 
-        marginHorizontal: 16
+        marginHorizontal: 16,
+        marginTop: 16
     },
 
     requestText: {
@@ -322,6 +254,8 @@ const styles = StyleSheet.create({
     },
 
     requestTitle: {
+        marginTop: 16,
+
         fontSize: 18,
         fontFamily: 'Sora_600SemiBold',
     },
@@ -333,6 +267,13 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto_400Regular',
 
         letterSpacing: 4,
+    },
+
+    requestAddress: {
+        marginTop: 8,
+
+        fontSize: 16,
+        fontFamily: 'Roboto_400Regular',
     },
 
     requestTrash: {
@@ -354,7 +295,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: -18,
         marginLeft: -2, 
-        marginRight: 0,
+        marginRight: -2,
     },
 
     requestButton: {

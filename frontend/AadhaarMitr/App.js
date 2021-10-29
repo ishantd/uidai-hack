@@ -11,6 +11,8 @@ import HomePage from './Components/HomePage';
 import { InboundRequestScreen, OutboundboundRequestScreen } from './Components/RequestPages';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { PasscodeCaptchaScreen, PasscodeOTPScreen, PasscodeScreen } from './Components/PasscodePage';
+import { AccessPasscodeScreen, AddressScreen } from './Components/AccessPage';
+import AddressSharingScreen from './Components/AddressSharingPage';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -36,7 +38,7 @@ function App() {
   else {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="HomeScreen">
+        <Stack.Navigator initialRouteName="LoginScreen">
           <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="OTPScreen" component={OTPScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="HomeScreen" component={HomePage} options={{ headerShown: false }}/>
@@ -44,6 +46,8 @@ function App() {
           <Stack.Screen name="PasscodeCaptchaScreen" component={PasscodeCaptchaScreen} options={{ title: 'Accept Address Request', headerLeft: null }}/>
           <Stack.Screen name="PasscodeOTPScreen" component={PasscodeOTPScreen} options={{ title: 'Accept Address Request', headerLeft: null }}/>
           <Stack.Screen name="PasscodeScreen" component={PasscodeScreen} options={{ title: 'Accept Address Request', headerLeft: null }}/>
+          <Stack.Screen name="AddressScreen" component={AddressScreen} options={{ title: 'Edit Address', headerBackVisible: false }}/>
+          <Stack.Screen name="AddressSharingScreen" component={AddressSharingScreen} options={{ title: 'Linked Addresses' }}/> 
         </Stack.Navigator>
       </NavigationContainer>
     );
