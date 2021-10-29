@@ -22,4 +22,11 @@ class UserVID(models.Model):
     txnId = models.CharField(max_length=50, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+
+class UserKYC(models.Model):
     
+    file_name = models.CharField(max_length=500, null=True, blank=True)
+    xml_file = models.FileField(upload_to='kyc/', null=True, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
