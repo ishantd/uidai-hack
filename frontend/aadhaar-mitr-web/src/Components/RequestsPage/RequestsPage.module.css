@@ -1,0 +1,93 @@
+.card{
+    display: flex;
+    flex-direction: column;
+
+    text-align: left;
+
+    border-radius: 4px;
+    padding: 2rem 2rem;
+
+    border: 2px solid #000000;
+
+    width: fit-content;
+}
+
+.requestCard{
+    display: flex;
+    flex-direction: row;
+
+    text-align: left;
+
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+
+    border: 2px solid #0245CB;
+
+    width: fit-content;
+}
+
+.button{
+    background-color: #000000;
+    border: 2px solid #000000;
+
+    color: white;
+    text-align: center;
+
+    cursor: pointer;
+
+    border-radius: 4px;
+
+    padding: 0.75em 1.5em;
+
+    width: 33.25rem;
+
+    font-size: 1rem;
+    font-family: 'Sora', sans-serif;
+}
+
+.inputBox{
+    background-color: #FFFFFF;
+    border: 2px solid #000000;
+
+    text-align: center;
+
+    margin: 1rem 0rem;
+
+    border-radius: 4px;
+
+    padding: 0.75em 1.5em;
+
+    width: 30rem;
+
+    text-align: left;
+
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+}
+
+.inputDiv{
+    display: flex;
+    flex-direction: column;
+}
+
+.heading{
+    font-size: 1.25rem;
+    font-family: 'Sora', sans-serif;
+}
+
+.subheading{
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+
+    letter-spacing: 3px;
+
+    margin-top: 0.5em;
+}
+
+.icon{
+    width: 4rem;
+    height: 4rem;
+
+    border-radius: 5rem;
+    background-color: #000000;
+}

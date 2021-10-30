@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { axiosUnauthorizedInstance, axiosInstance, setClientToken  } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -18,6 +18,8 @@ function OTPScreen(props) {
     const [resendText, setResendText] = useState();
     const [resendTrigger, setResendTrigger] = useState(false);
     let resendTimer = 60;
+
+    const [processingRequest, setProcessingRequest] = useState(false);
 
     const navigation = useNavigation();
 
@@ -58,13 +60,14 @@ function OTPScreen(props) {
     }
 
     const getEKYC = () => {
-        console.log(data);
+        setProcessingRequest(true);
+
         const requestOptions = {
             method: 'post',
             url: '/api/accounts/new-ekyc/get-ekyc/',
             data: { uid: aadhaar, txnId: data.txnId, otp: OTP }
         }
-        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); save("token", response.data.token); setClientToken(response.data.token); navigation.navigate("HomeScreen"); }).catch((error) => console.error(error));
+        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); save("token", response.data.token); setClientToken(response.data.token); navigation.navigate("HomeScreen"); }).catch((error) => { console.error(error); setProcessingRequest(false); });
     }
 
     return (
@@ -75,8 +78,14 @@ function OTPScreen(props) {
         <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={6} style={styles.inputBox} placeholder={"Enter OTP"} value={OTP} onChangeText={(text) => setOTP(text)}/>
         <Text style={[styles.resendText, { opacity: resendText === 'Resend OTP' ? 1 : 0.6 } ]} onPress={() => sendOTP()}>{resendText}</Text>
         <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => getEKYC()}>
-            <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/> 
-            <Text style={styles.buttonText}>{'Verify'}</Text>
+            {
+                processingRequest ?
+                <ActivityIndicator size="small" color="#FFFFFF"/> :
+                <React.Fragment>
+                    <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/> 
+                    <Text style={styles.buttonText}>{'Verify'}</Text>
+                </React.Fragment>
+            }
         </TouchableOpacity>
       </View>
     );
@@ -87,7 +96,11 @@ function LoginScreen(props) {
 
     const navigation = useNavigation();
 
+    const [processingRequest, setProcessingRequest] = useState(false);
+
     const sendOTP = () => {
+        setProcessingRequest(true);
+
         const requestOptions = {
             method: 'post',
             url: '/api/accounts/new-ekyc/send-otp/',
@@ -98,8 +111,9 @@ function LoginScreen(props) {
         .then((response) => {
             console.log(response.data);
             navigation.navigate("OTPScreen", { aadhaar: aadhaar, data: response.data });
+            setProcessingRequest(false);
         })
-        .catch((error) => console.error(error));
+        .catch((error) => { console.error(error); setProcessingRequest(false); });
     }
 
     return (
@@ -113,8 +127,14 @@ function LoginScreen(props) {
             <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={12} style={styles.inputBox} placeholder={"Aadhaar Number"} value={aadhaar} onChangeText={(text) => setAadhaar(text)}/>
             <Text style={[styles.resendText, { color: '#FFFFFF' }]}>Resend OTP</Text>
             <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => sendOTP()}>
-                <Ionicons name={'send'} size={24} color={'#FFFFFF'}/> 
-                <Text style={styles.buttonText}>{'Send OTP'}</Text>
+                {
+                    processingRequest ?
+                    <ActivityIndicator size="small" color="#FFFFFF"/> :
+                    <React.Fragment>
+                        <Ionicons name={'send'} size={24} color={'#FFFFFF'}/> 
+                        <Text style={styles.buttonText}>{'Send OTP'}</Text>
+                    </React.Fragment>
+                }
             </TouchableOpacity>
         </View>
     );

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
-import { axiosUnauthorizedInstance } from '../axiosInstance';
+import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
+import { axiosUnauthorizedInstance, axiosInstance } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
@@ -11,7 +11,7 @@ function RequestAccepted(props) {
     return (
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <View style={styles.requestIcon}/>
+                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000' + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -30,7 +30,7 @@ function RequestAccepted(props) {
 function RequestOutgoing(props) {
     return (
         <View style={styles.requestBox}>
-            <View style={styles.requestIcon}/>
+            <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000' + props.url }}/>
             <View style={styles.requestText}>
                 <Text style={styles.requestTitle}>{props.name}</Text>
                 <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -42,29 +42,60 @@ function RequestOutgoing(props) {
     );
 }
 
+function RequestOutgoingNoUser(props) {
+    return (
+        <View style={styles.requestBox}>
+            <View style={[styles.requestIcon, { justifyContent: 'center', alignItems: 'center' }]}>
+                <Ionicons name={'person'} size={36} color={'#FFFFFF'}/> 
+            </View>
+            <View style={styles.requestText}>
+                <Text style={[styles.requestTitle, { letterSpacing: 3 }]}>{props.phone}</Text>
+            </View>
+            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash}>
+                <Ionicons name={'trash'} size={32} color={'#FFFFFF'}/> 
+            </TouchableOpacity>
+        </View>
+    );
+}
+
 function RequestIncoming(props) {
     const navigation = useNavigation();
 
+    const [viewAnimation, setViewAnimation] = useState(null);
+    const deleteAnimation = { 0: { translateY: 0, opacity: 1 }, 0.5: { translateY: -5, opacity: 0.25 }, 1: { translateY: -10, opacity: 0 } };
+
+    const cancelRequest = () => {
+        const requestOptions = {
+            method: 'post',
+            url: '/api/address/landlord-approves-request/',
+            data: { requestId: props.id, requestStatus: 'decline' }
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); setViewAnimation(deleteAnimation); })
+        .catch((error) => { console.error(error); });
+    }
+
     return (
-        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]}>
+        <Animatable.View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <View style={styles.requestIcon}/>
+                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000' + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
                 </View>
             </View>
             <View style={styles.requestButtons}>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8 }]} onPress={() => navigation.navigate("PasscodeOTPScreen")}>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8 }]} onPress={() => navigation.navigate("PasscodeCaptchaScreen", { id: props.id })}>
                     <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/>
                     <Text style={styles.requestButtonText}>{'Accept'}</Text> 
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { backgroundColor: '#FFFFFF', borderBottomRightRadius: 8 }]}>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { backgroundColor: '#FFFFFF', borderBottomRightRadius: 8 }]} onPress={() => cancelRequest()}>
                     <Ionicons name={'close-circle'} size={24} color={'#000000'}/> 
                     <Text style={[styles.requestButtonText, { color: '#000000' }]}>{'Decline'}</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </Animatable.View>
     );
 }
 
@@ -72,14 +103,32 @@ function InboundRequestScreen(props) {
     const navigation = useNavigation();
     const focused = useIsFocused();
 
+    const [inboundRequests, setInboundRequests] = useState();
+
     useEffect(() => {
+        getRequestData();
     }, []);
 
+    const getRequestData = () => {
+        const requestOptions = {
+            method: 'get',
+            url: '/api/address/send-request-to-landlord/?platform=mobile',
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); setInboundRequests(response.data.data.requests_recieved); })
+        .catch((error) => { console.error(error); });
+    }
+
     return (
-        <View style={styles.page}>
+        inboundRequests ?
+        <ScrollView style={styles.page}>
             <View style={styles.requestSection}>
-                <RequestIncoming phone={'9643-099-621'} name={'Kshitij Vikram Singh'}/>
+                { inboundRequests.map((request, index) => request.request_approved ? null : <RequestIncoming key={index} name={request.name} phone={request.phone} url={request.photo} {...request}/>) }
             </View>
+        </ScrollView> : 
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+            <ActivityIndicator size={'large'} color={'#000000'}/>
         </View>
     );
 }
@@ -101,33 +150,67 @@ function OutboundboundRequestScreen(props) {
     const [pageAnimation, setPageAnimation] = useState(slideIn);
     const [closing, setClosing] = useState(false);
 
+    const [outboundRequests, setOutboundRequests] = useState();
+
+    const [selectedRequest, setSelectedRequest] = useState();
+
     useEffect(() => {
+        getRequestData();
     }, []);
 
+    const getRequestData = () => {
+        const requestOptions = {
+            method: 'get',
+            url: '/api/address/send-request-to-landlord/?platform=mobile',
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); setOutboundRequests(response.data.data.requests_sent); })
+        .catch((error) => { console.error(error); });
+    }
+
+    const verifyPasscode = () => {
+        const requestOptions = {
+            method: 'post',
+            url: '/api/address/enter-passcode-and-get-address/',
+            data: { requestId: selectedRequest, code: passcode }
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); setPasscode(""); })
+        .then(() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("AddressScreen"), 500); })
+        .catch((error) => { console.error(error); });
+    }
+
     return (
-        <View style={styles.page}>
-            <View style={styles.requestSection}>
-                <RequestOutgoing phone={'9643-099-621'} name={'Kshitij Vikram Singh'}/>
-                <RequestAccepted phone={'9643-099-621'} name={'Kshitij Vikram Singh'} accessAddress={() => { setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }}/>
-            </View>
+        outboundRequests ?
+        <React.Fragment>
+            <ScrollView style={styles.page}>
+                <View style={styles.requestSection}>
+                    { outboundRequests.map((request, index) => request.request_approved ? <RequestAccepted key={index} name={request.name} phone={request.phone} url={request.photo} accessAddress={() => { setSelectedRequest(request.id); setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }}/> : request.name !== null ? <RequestOutgoing key={index} name={request.name} phone={request.phone} url={request.photo}/> : <RequestOutgoingNoUser key={index} phone={request.phone}/> ) }
+                </View>
+            </ScrollView>
             {
                 showBottomDrawer ? 
                 <React.Fragment>
                     <Animatable.View style={styles.cardBackground} animation={backgroundAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}/>
                     <Animatable.View style={styles.card} animation={pageAnimation} duration={400} easing={'ease-out-quad'} useNativeDriver={true} onAnimationEnd={() => { if (closing) setShowBottomDrawer(false) }}>
-                        <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
+                        <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setPasscode(""); }}>
                             <Ionicons name={'close'} size={24} color={'#000000'}/>
                         </TouchableOpacity>
                         <Text style={styles.cardTitle}>{'Enter Your Passcode'}</Text>
                         <Text style={styles.cardSubtitle}>{'Please enter the 4 digit passcode obtained from your Landlord to access their address.'}</Text>
-                        <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={4} style={styles.inputBox} placeholder={"Enter Passcode"} value={passcode} onChangeText={(text) => setPasscode(text)}/>
-                        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("AddressScreen"), 500); }}>
+                        <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} secureTextEntry={true} maxLength={4} style={styles.inputBox} placeholder={"Enter Passcode"} value={passcode} onChangeText={(text) => setPasscode(text)}/>
+                        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => verifyPasscode()}>
                             <Ionicons name={'lock-open'} size={24} color={'#FFFFFF'}/> 
                             <Text style={styles.buttonText}>{'Proceed'}</Text>
                         </TouchableOpacity>
                     </Animatable.View>
                 </React.Fragment> : null
             }
+        </React.Fragment> : 
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+            <ActivityIndicator size={'large'} color={'#000000'}/>
         </View>
     );
 }
