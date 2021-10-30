@@ -11,15 +11,19 @@ class TenantRequestToLandlord(models.Model):
     request_to_mobile = models.CharField(validators=[phone_regex], max_length=10)
     
     request_approved = models.BooleanField(default=False)
+    request_declined = models.BooleanField(default=False)
     request_completed_by_tenant = models.BooleanField(default=False)
 
     created_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
+    request_declined_timestamp = models.DateTimeField(blank=True, null=True)
     request_approved_timestamp = models.DateTimeField(blank=True, null=True)
+    request_completed_by_tenant_timestamp = models.DateTimeField(blank=True, null=True)
     
     request_modified_address = models.CharField(max_length=500, null=True, blank=True)
     
-    kyc = models.ForeignKey(UserKYC, null=True, blank=True, on_delete=models.SET_NULL) 
+    kyc = models.ForeignKey(UserKYC, null=True, blank=True, on_delete=models.SET_NULL)
+    active = models.BooleanField(default=True)
 
 
 class State(models.Model):
