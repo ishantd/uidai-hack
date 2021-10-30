@@ -28,33 +28,65 @@ function RequestAccepted(props) {
 }
 
 function RequestOutgoing(props) {
+    const [viewAnimation, setViewAnimation] = useState(null);
+    const deleteAnimation = { 0: { translateY: 0, opacity: 1 }, 0.5: { translateY: -5, opacity: 0.25 }, 1: { translateY: -10, opacity: 0 } };
+
+    const cancelRequest = () => {
+        const requestOptions = {
+            method: 'post',
+            url: '/api/address/cancel-request/',
+            data: { requestId: props.id }
+        }
+
+        console.log(props.id);
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); setViewAnimation(deleteAnimation); })
+        .catch((error) => { console.error(error); });
+    }
+
     return (
-        <View style={styles.requestBox}>
+        <Animatable.View style={styles.requestBox} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
             <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000' + props.url }}/>
             <View style={styles.requestText}>
                 <Text style={styles.requestTitle}>{props.name}</Text>
                 <Text style={styles.requestSubtitle}>{props.phone}</Text>
             </View>
-            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash}>
+            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash} onPress={() => cancelRequest()}>
                 <Ionicons name={'trash'} size={32} color={'#FFFFFF'}/> 
             </TouchableOpacity>
-        </View>
+        </Animatable.View>
     );
 }
 
 function RequestOutgoingNoUser(props) {
+    const [viewAnimation, setViewAnimation] = useState(null);
+    const deleteAnimation = { 0: { translateY: 0, opacity: 1 }, 0.5: { translateY: -5, opacity: 0.25 }, 1: { translateY: -10, opacity: 0 } };
+
+    const cancelRequest = () => {
+        const requestOptions = {
+            method: 'post',
+            url: '/api/address/cancel-request/',
+            data: { requestId: props.id }
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); setViewAnimation(deleteAnimation); })
+        .catch((error) => { console.error(error); });
+    }
+
     return (
-        <View style={styles.requestBox}>
+        <Animatable.View style={styles.requestBox} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
             <View style={[styles.requestIcon, { justifyContent: 'center', alignItems: 'center' }]}>
                 <Ionicons name={'person'} size={36} color={'#FFFFFF'}/> 
             </View>
             <View style={styles.requestText}>
                 <Text style={[styles.requestTitle, { letterSpacing: 3 }]}>{props.phone}</Text>
             </View>
-            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash}>
+            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash} onPress={() => cancelRequest()}>
                 <Ionicons name={'trash'} size={32} color={'#FFFFFF'}/> 
             </TouchableOpacity>
-        </View>
+        </Animatable.View>
     );
 }
 
@@ -177,8 +209,7 @@ function OutboundboundRequestScreen(props) {
         }
 
         axiosInstance(requestOptions)
-        .then((response) => { console.log(response); setPasscode(""); })
-        .then(() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("AddressScreen"), 500); })
+        .then((response) => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("AddressScreen", { data: response.data.data }), 500); setPasscode(""); })
         .catch((error) => { console.error(error); });
     }
 
@@ -187,7 +218,7 @@ function OutboundboundRequestScreen(props) {
         <React.Fragment>
             <ScrollView style={styles.page}>
                 <View style={styles.requestSection}>
-                    { outboundRequests.map((request, index) => request.request_approved ? <RequestAccepted key={index} name={request.name} phone={request.phone} url={request.photo} accessAddress={() => { setSelectedRequest(request.id); setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }}/> : request.name !== null ? <RequestOutgoing key={index} name={request.name} phone={request.phone} url={request.photo}/> : <RequestOutgoingNoUser key={index} phone={request.phone}/> ) }
+                    { outboundRequests.map((request, index) => request.request_approved ? <RequestAccepted key={index} name={request.name} phone={request.phone} url={request.photo} accessAddress={() => { setSelectedRequest(request.id); setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }} {...request}/> : request.name !== null ? <RequestOutgoing key={index} name={request.name} phone={request.phone} url={request.photo} {...request}/> : <RequestOutgoingNoUser key={index} phone={request.phone} {...request}/> ) }
                 </View>
             </ScrollView>
             {

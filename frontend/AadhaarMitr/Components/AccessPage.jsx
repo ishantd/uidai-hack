@@ -6,8 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 
 function AddressScreen(props) {
-    const [address, setAddress] = useState('House No. 448');
-
     const [showBottomDrawer, setShowBottomDrawer] = useState(false);
     const [OTP, setOTP] = useState('');
 
@@ -27,6 +25,24 @@ function AddressScreen(props) {
     const [resendText, setResendText] = useState();
     const [resendTrigger, setResendTrigger] = useState(false);
     let resendTimer = 60;
+
+    const [careOf, setCareOf] = useState(props.route.params.data['@careof']);
+    const [house, setHouse] = useState(props.route.params.data['@house']);
+    const [street, setStreet] = useState(props.route.params.data['@street']);
+    const [landmark, setLandmark] = useState(props.route.params.data['@landmark']);
+    const [locality, setLocality] = useState(props.route.params.data['@loc']);
+    const [vtc, setVtc] = useState(props.route.params.data['@vtc']);
+    const [subdistrict, setSubdistrict] = useState(props.route.params.data['@subdist']);
+    const [district, setDistrict] = useState(props.route.params.data['@dist']);
+    const [pincode, setPincode] = useState(props.route.params.data['@pc']);
+    const [postOffice, setPostOffice] = useState(props.route.params.data['@po']);
+    const [state, setState] = useState(props.route.params.data['@state']);
+    const [country, setCountry] = useState(props.route.params.data['@country']);
+
+    useEffect(() => {
+        console.log('Address is');
+        console.log(props.route.params.data);
+    }, []);
 
     useEffect(() => {
         const timerInterval = setInterval(() => {
@@ -65,12 +81,12 @@ function AddressScreen(props) {
                 <Text style={styles.heading}>Modify Address</Text>
                 <Ionicons name={'return-down-back'} style={{marginLeft: 'auto', marginRight: 24}} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.subheading}>{'You can make minor edits to your address if required.'}</Text>
-                <TextInput style={styles.inputBox} value={address} onChangeText={(text) => setAddress(text)}/>
-                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={'Pocket - 1, Paschim Puri'} editable={false}/>
-                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={'Near Ration Office, West Delhi'} editable={false}/>
-                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={'New Delhi, Delhi'} editable={false}/>
-                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={'India'} editable={false}/>
-                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={'110063'} editable={false}/>
+                <TextInput style={styles.inputBox} value={house} onChangeText={(text) => setHouse(text)}/>
+                <TextInput style={styles.inputBox} value={street} onChangeText={(text) => setStreet(text)}/>
+                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={landmark.length > 0 ? ('Near ' + landmark) : '' + postOffice.length > 0 ? ', ' + postOffice : ''} editable={false}/>
+                { subdistrict.length > 0 || locality.length > 0 ? <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={subdistrict.length > 0 ? subdistrict : '' + locality.length > 0 ? (', ' + locality) : ''} editable={false}/> : '' }
+                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={district + ', ' + vtc} editable={false}/>
+                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={state + ', ' + pincode + ', ' + country} editable={false}/>
                 <Text style={[styles.resendText, { color: '#FFFFFF' }]}>Resend OTP</Text>
                 <TouchableOpacity activeOpacity={0.8} style={styles.button}  onPress={() => { setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }}>
                     <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/> 
