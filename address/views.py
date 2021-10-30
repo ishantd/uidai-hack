@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 from accounts.models import UserProfile
-from address.models import TenantRequestToLandlord
+from accounts.utils import xml_to_dict
+from address.models import Address, TenantRequestToLandlord, UserRentedAddress
 
 from zipfile import ZipFile
 from datetime import datetime
@@ -108,12 +109,6 @@ class ChangeAddressRequestStatus(APIView):
             tenant_request.request_declined_timestamp = datetime.now()
         tenant_request.save()
 
-        if requestStatus == 'Confirmed':
-            return JsonResponse({"status": "Request Confirmed"}, status=200)
-
-        if requestStatus == 'Declined':
-            return JsonResponse({"status": "Request Declined"}, status=200)
-
         return JsonResponse({"status": "ok", "data": model_to_dict(tenant_request)}, status=200)
 
 class EnterPincodeAndGetAddress(APIView):
@@ -125,12 +120,30 @@ class EnterPincodeAndGetAddress(APIView):
         tenant_request = TenantRequestToLandlord.objects.get(id=request_id)
         
         user_kyc = tenant_request.kyc
-        zip_file_url = os.path.join(settings.BASE_DIR, user_kyc.datafile.url)
-        
+        zip_file_url = user_kyc.datafile.path
         with ZipFile(zip_file_url) as zf:
-            extracted_files = zf.extractall(pwd=code.encode('ascii'))
-        print(extracted_files)
-        return JsonResponse({"status": "success"}, status=200)
+            zf.extractall(pwd=bytes(code, 'utf-8'))
+        xml_filename = user_kyc.file_name.replace('zip', 'xml')
+        with open(xml_filename, 'r') as f:
+            xml_string_data = f.read()
+        
+        xml_data_dict = xml_to_dict(xml_string_data)
+        uid_data = xml_data_dict["OfflinePaperlessKyc"]["UidData"]
+        poa_data = uid_data["Poa"]
+        
+        original_address, original_address_created = Address.objects.get_or_create(address_object=poa_data)
+        
+        user_rented_address, user_rented_address_created = UserRentedAddress.objects.get_or_create(
+            request_id=tenant_request
+        )
+        
+        user_rented_address.original_address = original_address
+        user_rented_address.save()
+
+        if os.path.exists(xml_filename):
+            os.remove(xml_filename)
+        
+        return JsonResponse({"status": "success", "data": poa_data}, status=200)
 
 class CancelRequest(APIView):
 
@@ -163,7 +176,9 @@ class RequestApprovedAndSaveAddress(APIView):
         tenant_request.request_completed_by_tenant_timestamp = datetime.now()
         tenant_request.save()
         
-        address_call = Address.objects.get()
-        address_object = addressData 
-
+        new_address_obj = Address.objects.create(address_object=addressData)
+        user_rented_address = UserRentedAddress.objects.get(request_id=requestId)
+        user_rented_address.rented_address = new_address_obj
+        user_rented_address.save()
+        
         return JsonResponse({"status": "success: request "}, status=200)
