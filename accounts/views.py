@@ -127,24 +127,17 @@ class FastKYCVerifyOtp(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
-        mobileNumber = request.data.get('mobileNumber', False)
         txnId = request.data.get('txnId', False)
         otp = request.data.get('otp', False)
         
-        if not (uid and txnId and mobileNumber):
+        if not (uid and txnId and otp):
             return JsonResponse({"status": "not enough data"}, status=400)
         
         ekyc = FastKyc()
         otp_response = ekyc.verify_otp(uid, txnId, otp)
         
-        if otp_response['status'] == 'y' or 'Y':
-            masked_aadhaar = uid[-4:]
-            username = f'{mobileNumber}x{masked_aadhaar}'
-            user, user_created = User.objects.get_or_create(username=username)
-            
-            user_token, user_token_created = Token.objects.get_or_create(user=user)
-            
-            return JsonResponse({"status": "okay", "data": otp_response, "token": user_token.key}, status=200)
+        if otp_response['status'] == 'y' or 'Y':           
+            return JsonResponse({"status": "okay", "data": otp_response}, status=200)
 
         if otp_response['status'] == 'n' or 'N':
             return JsonResponse({"status": "Failed", "data":otp_response}, status =400)
@@ -224,3 +217,21 @@ class UserProfileCRUD(APIView):
         }
         
         return JsonResponse({"status": "okay", "profile_data": user_data}, status=200)
+
+class LinkedAccounts(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        profile = UserProfile.objects.get(user=user)
+        requests_landlord = TenantRequestToLandlord.objects.filter(requests_to=profile, request_completed_by_tenant=True)
+        linked_data = []
+        for r in requests_landlord:
+            ura = UserRentedAddress.objects.get(request_id=r)
+            data = {
+                "name": r.request_to.name if r.request_to else r.request_to_mobile,
+                "phone": r.request_to_mobile,
+                "photo": r.request_to.photo.url if r.request_to else None,
+                "address": ura.rented_address.address_object
+            }
+            linked_data.append(data)
+        return JsonResponse({"status": "success", "data": linked_data}, status=200)
