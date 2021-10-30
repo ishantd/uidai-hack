@@ -62,9 +62,9 @@ function App() {
       		    	<Stack.Screen name="HomeScreen" component={HomePage} options={{ headerShown: false }}/>
       		    	<Stack.Screen name="RequestsScreen" component={RequestsScreens} options={{ title: 'Requests' }}/>
       		    	<Stack.Screen name="PasscodeOTPScreen" component={PasscodeOTPScreen} options={{ title: 'Accept Address Request', headerBackVisible: false }}/>
-      		    	<Stack.Screen name="PasscodeScreen" component={PasscodeScreen} options={{ title: 'Accept Address Request', headerBackVisible: false }}/>
+					<Stack.Screen name="PasscodeCaptchaScreen" component={PasscodeCaptchaScreen} options={{ title: 'Accept Address Request', headerBackVisible: false }}/>
       		    	<Stack.Screen name="AddressScreen" component={AddressScreen} options={{ title: 'Edit Address', headerBackVisible: false }}/>
-      		    	<Stack.Screen name="AddressSharingScreen" component={AddressSharingScreen} options={{ title: 'Linked Addresses' }}/> 
+      		    	<Stack.Screen name="AddressSharingScreen" component={AddressSharingScreen} options={{ title: 'Linked Accounts' }}/> 
       		  	</Stack.Navigator>
       		</NavigationContainer>
     	);

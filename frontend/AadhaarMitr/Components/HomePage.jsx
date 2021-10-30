@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { RequestIncoming, RequestOutgoing } from './RequestPages';
 import * as Animatable from 'react-native-animatable';
+import { axiosInstance } from '../axiosInstance';
 
 function HomePage(props) {
     const [showBottomDrawer, setShowBottomDrawer] = useState(false);
@@ -22,24 +23,73 @@ function HomePage(props) {
     const [pageAnimation, setPageAnimation] = useState(slideIn);
     const [closing, setClosing] = useState(false);
 
+    const [userData, setUserData] = useState();
+    const [pendingRequests, setPendingRequests] = useState([]);
+
     useEffect(() => {
+        getProfileData();
+        getRequestData();
     }, []);
 
+    useEffect(() => {
+        if (focused) {
+            getRequestData();
+        }
+    }, [focused]);
+
+    const getProfileData = () => {
+        const requestOptions = {
+            method: 'get',
+            url: '/api/accounts/profile/',
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => {
+            console.log(response.data);
+            setUserData(response.data.profile_data);
+        })
+        .catch((error) => { console.error(error); });
+    }
+
+    const getRequestData = () => {
+        const requestOptions = {
+            method: 'get',
+            url: '/api/address/send-request-to-landlord/?platform=mobile',
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); setPendingRequests(response.data.data.requests_recieved); })
+        .catch((error) => { console.error(error); });
+    }
+
+    const sendLandlordRequest = () => {
+        const requestOptions = {
+            method: 'post',
+            url: '/api/address/send-request-to-landlord/',
+            data: { mobileNumber: landlordNumber },
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); })
+        .catch((error) => { console.error(error); });
+    }
+
     return (
+        userData ? 
         <React.Fragment>
         <ScrollView style={styles.page} contentContainerStyle={styles.pageContainer}>
             <View style={styles.userBox}>
-                <View style={styles.userIcon}/>
+                <Image style={styles.userIcon} source={{ uri: 'http://127.0.0.1:8000' + userData.img_url }}/>
                 <View style={styles.userText}>
-                    <Text style={styles.userTitle}>{'Ishant Dahiya'}</Text>
-                    <Text style={styles.userSubSubtitle}>{'9654-594-034'}</Text>
-                    <Text style={styles.userSubtitle}>{'XXXX-XXXX-3561'}</Text>
+                    <Text style={styles.userTitle}>{userData.name}</Text>
+                    <Text style={styles.userSubSubtitle}>{userData.mobile_number}</Text>
+                    <Text style={styles.userSubtitle}>{`XXXX-XXXX-${userData.masked_aadhaar}`}</Text>
                 </View>
             </View>
             <View style={styles.requestSection}>
                 <Text style={styles.titleText}>{'Pending Requests'}</Text>
                 <ScrollView style={{ maxHeight: 160 }}>
-                    <RequestIncoming phone={'9818-220-492'} name={'Kshitij Vikram Singh'}/>
+                    { pendingRequests.map((request, index) => request.request_approved ? null : <RequestIncoming key={index} name={request.name} phone={request.phone} url={request.photo} {...request}/>) }
                 </ScrollView>
                 <Text style={styles.viewAllRequests} onPress={() => navigation.navigate("RequestsScreen")}>{'View All Requests'}</Text>
             </View> 
@@ -64,14 +114,17 @@ function HomePage(props) {
                     <Text style={styles.cardTitle}>{'Request Address From Landlord'}</Text>
                     <Text style={styles.cardSubtitle}>{'Enter your Landlord\'s Phone Number to request their address.'}</Text>
                     <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={10} style={styles.inputBox} placeholder={"Phone Number"} value={landlordNumber} onChangeText={(text) => setLandlordNumber(text)}/>
-                    <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
+                    <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); sendLandlordRequest(); }}>
                         <Ionicons name={'paper-plane'} size={24} color={'#FFFFFF'}/> 
                         <Text style={styles.buttonText}>{'Request Address'}</Text>
                     </TouchableOpacity>
                 </Animatable.View>
             </React.Fragment> : null
         }
-        </React.Fragment>
+        </React.Fragment> : 
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+            <ActivityIndicator size={'large'} color={'#000000'}/>
+        </View>
     );
 }
 
@@ -186,7 +239,7 @@ const styles = StyleSheet.create({
 
         color: '#0245CB',
 
-        letterSpacing: 1
+        letterSpacing: 4
     },
 
     titleText: {
