@@ -34,6 +34,7 @@ if not DEBUG:
 
 ALLOWED_HOSTS = (os.getenv("ALLOWED_HOSTS")).split(",")
 
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
 # Application definition
 

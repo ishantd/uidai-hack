@@ -65,7 +65,6 @@ class SendOTPforEkyc(APIView):
 
 
 class GetEKYC(APIView):
-    permission_classes = [AllowAny]
     
     def post(self, request, *args, **kwargs):
         request_id = request.data.get('request_id', False)
@@ -86,18 +85,20 @@ class GetEKYC(APIView):
             #b64 data to file object
             b64_string = data_from_api['eKycXML']
             b64_file = ContentFile(base64.b64decode(b64_string), name=data_from_api["fileName"])
+            user_kyc, user_kyc_created = UserKYC.objects.get_or_create(
+                user=request.user,
+                file_name=data_from_api["fileName"],
+                datafile=b64_file
+            )
             
             # save file to either localstorage or s3
             request_obj = TenantRequestToLandlord.objects.get(id=request_id)
             request_obj.request_approved_timestamp = datetime.now()
             request_obj.request_approved = True
+            request_obj.kyc = user_kyc
             request_obj.save()
             # record ekyc transaction and file location
-            
-            user_kyc, user_kyc_created = UserKYC.objects.get_or_create(
-                file_name=data_from_api["fileName"],
-                datafile=b64_file
-            )                  
+     
             
             return JsonResponse({"status": "okay"}, status=200)
 
@@ -126,24 +127,17 @@ class FastKYCVerifyOtp(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
-        mobileNumber = request.data.get('mobileNumber', False)
         txnId = request.data.get('txnId', False)
         otp = request.data.get('otp', False)
         
-        if not (uid and txnId and mobileNumber):
+        if not (uid and txnId and otp):
             return JsonResponse({"status": "not enough data"}, status=400)
         
         ekyc = FastKyc()
         otp_response = ekyc.verify_otp(uid, txnId, otp)
         
-        if otp_response['status'] == 'y' or 'Y':
-            masked_aadhaar = uid[-4:]
-            username = f'{mobileNumber}x{masked_aadhaar}'
-            user, user_created = User.objects.get_or_create(username=username)
-            
-            user_token, user_token_created = Token.objects.get_or_create(user=user)
-            
-            return JsonResponse({"status": "okay", "data": otp_response, "token": user_token.key}, status=200)
+        if otp_response['status'] == 'y' or 'Y':           
+            return JsonResponse({"status": "okay", "data": otp_response}, status=200)
 
         if otp_response['status'] == 'n' or 'N':
             return JsonResponse({"status": "Failed", "data":otp_response}, status =400)
@@ -190,8 +184,8 @@ class FastKYCEKyc(APIView):
             return JsonResponse({"status": "okay", "token": user_token.key}, status=200)
 
         if otp_response['errCode']:
-            return JsonResponse({"status": "Failed", "data":otp_response}, status =400)
-        return JsonResponse({"status": "Unknown Error", "data":otp_response}, status =422)
+            return JsonResponse({"status": "Failed", "data":otp_response}, status=400)
+        return JsonResponse({"status": "Unknown Error", "data":otp_response}, status=422)
 
 class AddressActions(APIView):
         
@@ -223,3 +217,21 @@ class UserProfileCRUD(APIView):
         }
         
         return JsonResponse({"status": "okay", "profile_data": user_data}, status=200)
+
+class LinkedAccounts(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        profile = UserProfile.objects.get(user=user)
+        requests_landlord = TenantRequestToLandlord.objects.filter(requests_to=profile, request_completed_by_tenant=True)
+        linked_data = []
+        for r in requests_landlord:
+            ura = UserRentedAddress.objects.get(request_id=r)
+            data = {
+                "name": r.request_to.name if r.request_to else r.request_to_mobile,
+                "phone": r.request_to_mobile,
+                "photo": r.request_to.photo.url if r.request_to else None,
+                "address": ura.rented_address.address_object
+            }
+            linked_data.append(data)
+        return JsonResponse({"status": "success", "data": linked_data}, status=200)
