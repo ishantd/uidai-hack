@@ -18,6 +18,7 @@ class TenantRequestToLandlord(models.Model):
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
     request_declined_timestamp = models.DateTimeField(blank=True, null=True)
     request_approved_timestamp = models.DateTimeField(blank=True, null=True)
+    request_completed_by_tenant_timestamp = models.DateTimeField(blank=True, null=True)
     
     request_modified_address = models.CharField(max_length=500, null=True, blank=True)
     

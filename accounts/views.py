@@ -13,7 +13,7 @@ from accounts.new_ekyc import EkycOffline as FastKyc
 from accounts.utils import xml_to_dict
 from address.models import TenantRequestToLandlord, Address, State, District, UserRentedAddress
 
-import datetime
+from datetime import datetime
 import base64
 import json
 import uuid
@@ -95,11 +95,11 @@ class GetEKYC(APIView):
             # record ekyc transaction and file location
             
             user_kyc, user_kyc_created = UserKYC.objects.get_or_create(
-                filename=data_from_api["fileName"],
-                xml_file=b64_file
+                file_name=data_from_api["fileName"],
+                datafile=b64_file
             )                  
             
-            return JsonResponse({"status": "okay", "data": data_from_api, "user_kyc": model_to_dict(user_kyc)}, status=200)
+            return JsonResponse({"status": "okay"}, status=200)
 
         if data_from_api['status'] == 'Failed':
             return JsonResponse({"status": "Failed", "data": data_from_api}, status = data_from_api['ErrorCode'])
