@@ -24,8 +24,8 @@ class RequestToLandlord(APIView):
         if platform == 'mobile':
             user = request.user
             
-        requests_sent = TenantRequestToLandlord.objects.filter(request_from=user.profile)
-        requests_recieved = TenantRequestToLandlord.objects.filter(request_to=user.profile)
+        requests_sent = TenantRequestToLandlord.objects.filter(request_from=user.profile, request_declined=False, active=True)
+        requests_recieved = TenantRequestToLandlord.objects.filter(request_to=user.profile, request_declined=False, active=True)
         
         requests_sent_data = []
         requests_recieved_data = []

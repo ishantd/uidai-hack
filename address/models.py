@@ -21,7 +21,8 @@ class TenantRequestToLandlord(models.Model):
     
     request_modified_address = models.CharField(max_length=500, null=True, blank=True)
     
-    kyc = models.ForeignKey(UserKYC, null=True, blank=True, on_delete=models.SET_NULL) 
+    kyc = models.ForeignKey(UserKYC, null=True, blank=True, on_delete=models.SET_NULL)
+    active = models.BooleanField(default=True)
 
 
 class State(models.Model):

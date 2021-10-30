@@ -179,13 +179,14 @@ class FastKYCEKyc(APIView):
             username = f'{phone}x{masked_aadhaar}'
             image_data = ContentFile(base64.b64decode(photo_b64_string), name=f'{username}.jpg')
             user, user_created = User.objects.get_or_create(username=username)
-            user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user, name=name, mobile_number=phone, masked_aadhaar=masked_aadhaar, photo=image_data)
+            if user_created:
+                user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user, name=name, mobile_number=phone, masked_aadhaar=masked_aadhaar, photo=image_data)
+                requests = TenantRequestToLandlord.objects.filter(request_to_mobile=phone).update(request_to=user_profile)
+            else:
+                user_profile = UserProfile.objects.get(user=user)
             user_token, user_token_created = Token.objects.get_or_create(user=user)
             kyc, kyc_created = UserKYC.objects.get_or_create(user=user, xml_raw_data=otp_response["eKycString"])
-            
-            requests = TenantRequestToLandlord.objects.filter(request_to_mobile=phone).update(request_to=user_profile)
-            
-            
+
             return JsonResponse({"status": "okay", "token": user_token.key}, status=200)
 
         if otp_response['errCode']:
