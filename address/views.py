@@ -167,11 +167,3 @@ class RequestApprovedAndSaveAddress(APIView):
         address_object = addressData 
 
         return JsonResponse({"status": "success: request "}, status=200)
-
-
-# class AddressVerification(APIView):
-
-#     def post(self, request, *args, **kwargs):
-        
-
-
