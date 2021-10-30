@@ -1,6 +1,7 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.http import JsonResponse
 from django.forms import model_to_dict
+from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
@@ -8,7 +9,9 @@ from rest_framework.permissions import AllowAny
 from accounts.models import UserProfile
 from address.models import TenantRequestToLandlord
 
+from zipfile import ZipFile
 from datetime import datetime
+import os
 
 
 class RequestToLandlord(APIView):
@@ -112,3 +115,63 @@ class ChangeAddressRequestStatus(APIView):
             return JsonResponse({"status": "Request Declined"}, status=200)
 
         return JsonResponse({"status": "ok", "data": model_to_dict(tenant_request)}, status=200)
+
+class EnterPincodeAndGetAddress(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        code = request.data.get('code', False)
+        request_id = request.data.get('requestId', False)
+        
+        tenant_request = TenantRequestToLandlord.objects.get(id=request_id)
+        
+        user_kyc = tenant_request.kyc
+        zip_file_url = os.path.join(settings.BASE_DIR, user_kyc.datafile.url)
+        
+        with ZipFile(zip_file_url) as zf:
+            extracted_files = zf.extractall(pwd=code.encode('ascii'))
+        print(extracted_files)
+        return JsonResponse({"status": "success"}, status=200)
+
+class CancelRequest(APIView):
+
+    def post(self, request, *args, **kwargs):
+        requestId = request.data.get('requestId', False)
+
+        if not(requestId):
+            return JsonResponse({"status":"not enough data"}, status=400)
+        
+        tenant_request = TenantRequestToLandlord.objects.get(id=requestId)
+        tenant_request.active = False
+        tenant_request.save()     
+                    
+        return JsonResponse({"status": "success: request deleted"}, status=200)
+
+
+class RequestApprovedAndSaveAddress(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        requestId = request.data.get('requestId', False)
+        addressData = request.data.get('addressData', False)
+
+        if not(requestId):
+            return JsonResponse({"status":"not enough data"}, status=400)
+
+        tenant_request = TenantRequestToLandlord.objects.get(id=requestId)
+
+        tenant_request.request_completed_by_tenant = True
+        tenant_request.request_completed_by_tenant_timestamp = datetime.now()
+        tenant_request.save()
+        
+        address_call = Address.objects.get()
+        address_object = addressData 
+
+        return JsonResponse({"status": "success: request "}, status=200)
+
+
+class AddressVerification(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+
+
