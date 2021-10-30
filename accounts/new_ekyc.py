@@ -22,14 +22,14 @@ class EkycOffline:
         response = requests.request(method, url, headers=headers, data=json.dumps(data))
         return response.json()
 
-    def generate_otp(self, uid):
+    def generate_otp(self, uid, txnId):
         method = "POST"
         headers = {
             'Content-Type':'application/json'
         }
         data = {
             "uid": uid,
-            "txnId": {str(uuid.uuid4())}
+            "txnId": txnId
         }
 
         response = self.make_api_request(method, self.generate_otp_url, headers, data)
