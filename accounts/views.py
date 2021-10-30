@@ -162,14 +162,10 @@ class FastKYCEKyc(APIView):
         ekyc = FastKyc()
         otp_response = ekyc.get_ekyc(uid, txnId, otp)
         
-        if otp_response['status'] == 'y' or 'Y':
+        if otp_response['status'] == 'y' or otp_response['status'] == 'Y':
                       
             
             xml_data_dict = xml_to_dict(otp_response["eKycString"])
-            # json_data = json.dumps(xml_data_dict)
-            
-            # with open("data.json", "w") as json_file:
-            #     json_file.write(json_data)
             
             uid_data = xml_data_dict["KycRes"]["UidData"]
             poi_data = uid_data["Poi"]
@@ -186,7 +182,10 @@ class FastKYCEKyc(APIView):
             user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user, name=name, mobile_number=phone, masked_aadhaar=masked_aadhaar, photo=image_data)
             user_token, user_token_created = Token.objects.get_or_create(user=user)
             kyc, kyc_created = UserKYC.objects.get_or_create(user=user, xml_raw_data=otp_response["eKycString"])
-            print(user_profile)
+            
+            requests = TenantRequestToLandlord.objects.filter(request_to_mobile=phone).update(request_to=user_profile)
+            
+            
             return JsonResponse({"status": "okay", "token": user_token.key}, status=200)
 
         if otp_response['errCode']:
@@ -208,3 +207,18 @@ class AddressActions(APIView):
         user_rented_address.save()
 
         return JsonResponse({"status": "success", "user_rented_address": model_to_dict(user_rented_address)}, status=200)
+
+class UserProfileCRUD(APIView):
+    
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        
+        user_profile = UserProfile.objects.get(user=user)
+        user_data = {
+            "name": user_profile.name,
+            "mobile_number": user_profile.mobile_number,
+            "masked_aadhaar": user_profile.masked_aadhaar,
+            "img_url": user_profile.photo.url
+        }
+        
+        return JsonResponse({"status": "okay", "profile_data": user_data}, status=200)
