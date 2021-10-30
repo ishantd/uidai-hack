@@ -17,6 +17,7 @@ __generated__
 *.aar
 *.ap_
 *.aab
+data.json
 
 # Files for the ART/Dalvik VM
 *.dex

@@ -10,10 +10,12 @@ from accounts.ekyc import EkycOffline
 from django.contrib.auth.models import User
 from accounts.models import UserKYC, UserProfile
 from accounts.new_ekyc import EkycOffline as FastKyc
+from accounts.utils import xml_to_dict
 from address.models import TenantRequestToLandlord, Address, State, District, UserRentedAddress
 
 import datetime
 import base64
+import json
 import uuid
 
 
@@ -108,23 +110,12 @@ class FastKYCSendOtp(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
-        mobileNumber = request.data.get('mobileNumber', False)
         
         ekyc = FastKyc()
         txnId = str(uuid.uuid4())
         otp_response = ekyc.generate_otp(uid, txnId)
         
-        if otp_response['status'] == 'y' or 'Y':
-            masked_aadhaar = uid[-4:]
-            username = f'{mobileNumber}x{masked_aadhaar}'
-            user, user_created = User.objects.get_or_create(username=username)
-            
-            user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user)
-            user_profile.mobile_number = mobileNumber
-            user_profile.masked_aadhaar = masked_aadhaar
-            user_profile.save()
-            
-            
+        if otp_response['status'] == 'y' or 'Y':           
             return JsonResponse({"status": "okay", "data": otp_response, "txnId": txnId}, status=200)
 
         if otp_response['status'] == 'n' or 'N':
@@ -162,25 +153,40 @@ class FastKYCEKyc(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
-        mobileNumber = request.data.get('mobileNumber', False)
         txnId = request.data.get('txnId', False)
         otp = request.data.get('otp', False)
         
-        if not (uid and txnId and mobileNumber and otp):
+        if not (uid and txnId and otp):
             return JsonResponse({"status": "not enough data"}, status=400)
         
         ekyc = FastKyc()
         otp_response = ekyc.get_ekyc(uid, txnId, otp)
         
         if otp_response['status'] == 'y' or 'Y':
+                      
+            
+            xml_data_dict = xml_to_dict(otp_response["eKycString"])
+            # json_data = json.dumps(xml_data_dict)
+            
+            # with open("data.json", "w") as json_file:
+            #     json_file.write(json_data)
+            
+            uid_data = xml_data_dict["KycRes"]["UidData"]
+            poi_data = uid_data["Poi"]
+            photo_b64_string = uid_data["Pht"]
+            
+            name = poi_data["@name"]
+            phone = poi_data["@phone"]
+            
+            
             masked_aadhaar = uid[-4:]
-            username = f'{mobileNumber}x{masked_aadhaar}'
+            username = f'{phone}x{masked_aadhaar}'
+            image_data = ContentFile(base64.b64decode(photo_b64_string), name=f'{username}.jpg')
             user, user_created = User.objects.get_or_create(username=username)
-            
+            user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user, name=name, mobile_number=phone, masked_aadhaar=masked_aadhaar, photo=image_data)
             user_token, user_token_created = Token.objects.get_or_create(user=user)
-            
             kyc, kyc_created = UserKYC.objects.get_or_create(user=user, xml_raw_data=otp_response["eKycString"])
-            
+            print(user_profile)
             return JsonResponse({"status": "okay", "token": user_token.key}, status=200)
 
         if otp_response['errCode']:
