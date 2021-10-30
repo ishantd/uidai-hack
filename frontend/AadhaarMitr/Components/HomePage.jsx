@@ -1,15 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
-//import axiosInstance, { setClientToken } from '../axiosConfig';
-//import axios from 'axios';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { RequestIncoming, RequestOutgoing } from './RequestPages';
 import * as Animatable from 'react-native-animatable';
 
 function HomePage(props) {
-    const [aadhaar, setAadhaar] = useState("");
-    const [captcha, setCaptcha] = useState("");
     const [showBottomDrawer, setShowBottomDrawer] = useState(false);
     const [landlordNumber, setLandlordNumber] = useState('');
 
@@ -37,7 +33,7 @@ function HomePage(props) {
                 <View style={styles.userText}>
                     <Text style={styles.userTitle}>{'Ishant Dahiya'}</Text>
                     <Text style={styles.userSubSubtitle}>{'9654-594-034'}</Text>
-                    <Text style={styles.userSubtitle}>{'XXXX-XXXX-35612'}</Text>
+                    <Text style={styles.userSubtitle}>{'XXXX-XXXX-3561'}</Text>
                 </View>
             </View>
             <View style={styles.requestSection}>
@@ -55,10 +51,6 @@ function HomePage(props) {
             <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("AddressSharingScreen") }}>
                 <Ionicons name={'person'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Accounts Linked To My Address'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("OTPScreen") }}>
-                <Ionicons name={'document-attach'} size={24} color={'#FFFFFF'}/> 
-                <Text style={styles.buttonText}>{'Update Address With Documents'}</Text>
             </TouchableOpacity>
         </ScrollView>
         {

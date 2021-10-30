@@ -55,7 +55,7 @@ function RequestIncoming(props) {
                 </View>
             </View>
             <View style={styles.requestButtons}>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8 }]} onPress={() => navigation.navigate("PasscodeCaptchaScreen")}>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8 }]} onPress={() => navigation.navigate("PasscodeOTPScreen")}>
                     <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/>
                     <Text style={styles.requestButtonText}>{'Accept'}</Text> 
                 </TouchableOpacity>
