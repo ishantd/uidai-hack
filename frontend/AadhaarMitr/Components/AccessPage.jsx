@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { axiosUnauthorizedInstance, axiosInstance, setClientToken  } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import * as Animatable from 'react-native-animatable';
 function AddressScreen(props) {
     const [showBottomDrawer, setShowBottomDrawer] = useState(false);
     const [OTP, setOTP] = useState('');
+    const [aadhaar, setAadhaar] = useState('');
 
     const navigation = useNavigation();
     const focused = useIsFocused();
@@ -39,10 +40,10 @@ function AddressScreen(props) {
     const [state, setState] = useState(props.route.params.data['@state']);
     const [country, setCountry] = useState(props.route.params.data['@country']);
 
-    useEffect(() => {
-        console.log('Address is');
-        console.log(props.route.params.data);
-    }, []);
+    const [screen, setScreen] = useState('Aadhaar');
+
+    const [processingRequest, setProcessingRequest] = useState(false);
+    const [txnId, setTxnId] = useState('');
 
     useEffect(() => {
         const timerInterval = setInterval(() => {
@@ -58,19 +59,88 @@ function AddressScreen(props) {
     }, [resendTrigger]);
 
     const sendOTP = () => {
+        setProcessingRequest(true);
+
+        const requestOptions = {
+            method: 'post',
+            url: '/api/accounts/new-ekyc/send-otp/',
+            data: { uid: aadhaar }
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => {
+            setResendText(`Resend OTP (${resendTimer} Seconds)`);
+            resendTimer = 60;
+            setResendTrigger(!resendTrigger);
+            setTxnId(response.data.txnId);
+        })
+        .then(() => { setScreen('OTP'); setProcessingRequest(false); })
+        .catch((error) => { console.error(error); setProcessingRequest(false); });
+    }
+
+    const verifyOTP = () => {
+        setProcessingRequest(true);
+
+        const requestOptions = {
+            method: 'post',
+            url: '/api/accounts/new-ekyc/verify-otp/',
+            data: { uid: aadhaar, txnId: txnId, otp: OTP }
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => {
+            if (response.data.status === 'okay') {
+                saveAddress();
+            }
+        })
+        .catch((error) => { console.error(error); setProcessingRequest(false); });
+    }
+
+    const saveAddress = () => {
+        const addressObject = {
+            '@careof': careOf,
+            '@house': house,
+            '@street': street,
+            '@landmark': landmark,
+            '@loc': locality,
+            '@vtc': vtc,
+            '@subdist': subdistrict,
+            '@dist': district,
+            '@pc': pincode,
+            '@po': postOffice,
+            '@state': state,
+            '@country': country
+        };
+
+        const requestOptions = {
+            method: 'post',
+            url: 'api/address/request-completed/',
+            data: { requestId: props.route.params.requestId, addressData: addressObject }
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => {
+            setProcessingRequest(false);
+        })
+        .then(() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("HomeScreen"), 500); })
+        .catch((error) => { console.error(error); setProcessingRequest(false); });
+    }
+
+    const resendOTP = () => {
         if (resendText !== 'Resend OTP') return;
 
         const requestOptions = {
             method: 'post',
             url: '/api/accounts/new-ekyc/send-otp/',
-            data: { uid: '999971650886' }
+            data: { uid: aadhaar }
         }
 
-        axiosUnauthorizedInstance(requestOptions)
+        axiosInstance(requestOptions)
         .then((response) => {
             setResendText(`Resend OTP (${resendTimer} Seconds)`);
             resendTimer = 60;
             setResendTrigger(!resendTrigger);
+            setTxnId(response.data.txnId);
         })
         .catch((error) => console.error(error));
     }
@@ -98,17 +168,49 @@ function AddressScreen(props) {
                 <React.Fragment>
                     <Animatable.View style={styles.cardBackground} animation={backgroundAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}/>
                     <Animatable.View style={styles.card} animation={pageAnimation} duration={400} easing={'ease-out-quad'} useNativeDriver={true} onAnimationEnd={() => { if (closing) setShowBottomDrawer(false); }}>
-                        <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
-                            <Ionicons name={'close'} size={24} color={'#000000'}/>
-                        </TouchableOpacity>
-                        <Text style={styles.cardTitle}>{'Authenticate Change'}</Text>
-                        <Text style={styles.cardSubtitle}>{'Enter the OTP you received on your phone to authenticate your address change.'}</Text>
-                        <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={6} style={styles.inputBoxOTP} placeholder={"Enter OTP"} value={OTP} onChangeText={(text) => setOTP(text)}/>
-                        <Text style={[styles.resendText, { opacity: resendText === 'Resend OTP' ? 1 : 0.6 } ]} onPress={() => sendOTP()}>{resendText}</Text>
-                        <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("HomeScreen"), 500); }}>
-                            <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/> 
-                            <Text style={styles.buttonText}>{'Verify Update'}</Text>
-                        </TouchableOpacity>
+                        {
+                            screen === 'Aadhaar' ? 
+                            <React.Fragment>
+                                <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setScreen('Aadhaar'); setOTP(); setAadhaar(); }}>
+                                    <Ionicons name={'close'} size={24} color={'#000000'}/>
+                                </TouchableOpacity>
+                                <Text style={styles.cardTitle}>{'Authenticate Change'}</Text>
+                                <Text style={styles.cardSubtitle}>{'Enter your Aadhaar Number to proceed with your address update request.'}</Text>
+                                <Ionicons name={'return-down-back'} style={{marginLeft: 'auto', marginRight: 24}} size={24} color={'#FFFFFF'}/> 
+                                <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={12} style={styles.inputBoxOTP} placeholder={"Aadhaar Number"} value={aadhaar} onChangeText={(text) => setAadhaar(text)}/>
+                                <Text style={[styles.resendText, { opacity: 0 } ]}>{resendText}</Text>
+                                <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => sendOTP()}>
+                                    {
+                                        processingRequest ?
+                                        <ActivityIndicator size="small" color="#FFFFFF"/> :
+                                        <React.Fragment>
+                                            <Ionicons name={'chevron-forward-circle'} size={24} color={'#FFFFFF'}/> 
+                                            <Text style={styles.buttonText}>{'Proceed'}</Text>
+                                        </React.Fragment>
+                                    }
+                                </TouchableOpacity>
+                            </React.Fragment> :
+                            <React.Fragment>
+                                <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setScreen('Aadhaar'); setOTP(); setAadhaar(); }}>
+                                    <Ionicons name={'close'} size={24} color={'#000000'}/>
+                                </TouchableOpacity>
+                                <Text style={styles.cardTitle}>{'Authenticate Change'}</Text>
+                                <Text style={styles.cardSubtitle}>{'Enter the OTP you received on your phone to authenticate your address change.'}</Text>
+                                <Ionicons name={'return-down-back'} style={{marginLeft: 'auto', marginRight: 24}} size={24} color={'#000000'} onPress={() => setScreen('Aadhaar')}/> 
+                                <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={6} style={styles.inputBoxOTP} placeholder={"Enter OTP"} value={OTP} onChangeText={(text) => setOTP(text)}/>
+                                <Text style={[styles.resendText, { opacity: resendText === 'Resend OTP' ? 1 : 0.6 } ]} onPress={() => resendOTP()}>{resendText}</Text>
+                                <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => verifyOTP()}>
+                                    {
+                                        processingRequest ?
+                                        <ActivityIndicator size="small" color="#FFFFFF"/> :
+                                        <React.Fragment>
+                                            <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/> 
+                                            <Text style={styles.buttonText}>{'Verify OTP'}</Text>
+                                        </React.Fragment>
+                                    }
+                                </TouchableOpacity>
+                            </React.Fragment>
+                        }
                     </Animatable.View>
                 </React.Fragment> : null
             }

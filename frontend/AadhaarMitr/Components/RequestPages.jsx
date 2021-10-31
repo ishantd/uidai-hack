@@ -11,7 +11,7 @@ function RequestAccepted(props) {
     return (
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000' + props.url }}/>
+                <Image style={styles.requestIcon} source={{ uri: 'https://aadhaarmitr.tech' + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -47,7 +47,7 @@ function RequestOutgoing(props) {
 
     return (
         <Animatable.View style={styles.requestBox} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
-            <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000' + props.url }}/>
+            <Image style={styles.requestIcon} source={{ uri: 'https://aadhaarmitr.tech' + props.url }}/>
             <View style={styles.requestText}>
                 <Text style={styles.requestTitle}>{props.name}</Text>
                 <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -111,7 +111,7 @@ function RequestIncoming(props) {
     return (
         <Animatable.View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000' + props.url }}/>
+                <Image style={styles.requestIcon} source={{ uri: 'https://aadhaarmitr.tech' + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -209,7 +209,7 @@ function OutboundboundRequestScreen(props) {
         }
 
         axiosInstance(requestOptions)
-        .then((response) => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("AddressScreen", { data: response.data.data }), 500); setPasscode(""); })
+        .then((response) => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("AddressScreen", { data: response.data.data, requestId: selectedRequest }), 500); setPasscode(""); })
         .catch((error) => { console.error(error); });
     }
 
