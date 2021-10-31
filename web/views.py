@@ -4,13 +4,16 @@ from django.utils.http import urlsafe_base64_decode
 
 from address.models import TenantRequestToLandlord
 
+import pytz
 from datetime import datetime
+
+tz = pytz.timezone('Asia/Kolkata')
 
 def address_request(request, uidb64):
     uid_data = urlsafe_base64_decode(uidb64).decode()
     mobile, pk = uid_data.split('-')
     request_obj = TenantRequestToLandlord.objects.get(id=pk)
-    if request_obj.expires_after > datetime.now():
+    if request_obj.expires_after > datetime.now(tz):
         request_obj.expired = True
         request_obj.save()
         return HttpResponse("Request Expired")
