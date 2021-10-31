@@ -2,7 +2,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.core.validators import RegexValidator
 
-from accounts.models import UserProfile, UserKYC
+from accounts.models import UserProfile, UserKYC, UserDevice
+from accounts.utils import trigger_single_notification
 
 from datetime import datetime, timedelta
 

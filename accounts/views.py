@@ -9,9 +9,9 @@ from rest_framework.authtoken.models import Token
 
 from authentication.models import OTP
 from accounts.ekyc import EkycOffline
-from accounts.utils import xml_to_dict
-from accounts.models import UserKYC, UserProfile
+from accounts.utils import xml_to_dict, create_sns_endpoint, trigger_single_notification
 from accounts.new_ekyc import EkycOffline as FastKyc
+from accounts.models import UserKYC, UserProfile, UserDevice
 from address.models import TenantRequestToLandlord, Address, State, District, UserRentedAddress
 
 import pytz
@@ -54,7 +54,7 @@ class SendOTPforEkyc(APIView):
         ekyc = EkycOffline()
         
         data_from_api = ekyc.generate_otp(uid, captchaTxnId, captchaValue)
-        
+        print(data_from_api)
         otp_object = OTP.objects.create(txn_id=data_from_api["txnId"])
         
         # TODO: create otp object here
@@ -72,13 +72,14 @@ class SendOTPforEkyc(APIView):
 
 
 class GetEKYC(APIView):
-    
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         request_id = request.data.get('request_id', False)
         uid = request.data.get('uid', False) 
         otp = request.data.get('otp', False)
         txnId = request.data.get('txnId', False)
         share_code = request.data.get('shareCode', False)
+        web = request.data.get('web', False)
         
         if not (uid and txnId and otp and share_code):
             return JsonResponse({"status": "not enough data"}, status=400)
@@ -87,9 +88,13 @@ class GetEKYC(APIView):
         ekyc = EkycOffline()
         
         # verify otp object here
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None
         
         data_from_api = ekyc.get_ekyc(uid, otp, txnId, share_code)
-        otp_object = OTP.objects.get(txnId=txnId)
+        otp_object = OTP.objects.get(txn_id=txnId)
         if data_from_api['status'] == 'Success':
             otp_object.verified = True
             otp_object.verified_timestamp = datetime.now(tz) 
@@ -98,7 +103,7 @@ class GetEKYC(APIView):
             b64_string = data_from_api['eKycXML']
             b64_file = ContentFile(base64.b64decode(b64_string), name=data_from_api["fileName"])
             user_kyc, user_kyc_created = UserKYC.objects.get_or_create(
-                user=request.user,
+                user=user,
                 file_name=data_from_api["fileName"],
                 datafile=b64_file
             )
@@ -110,7 +115,10 @@ class GetEKYC(APIView):
             request_obj.kyc = user_kyc
             request_obj.save()
             # record ekyc transaction and file location
-     
+            
+            if request_obj.request_approved == True:
+                user_device = UserDevice.objects.filter(user=request_obj.request_from.user).last()
+                trigger_single_notification(user_device.arn, "Request Approved", f'{request_obj.request_to.name if request_obj.request_to else "User"} has approved your request for address share. Please verify.')
             
             return JsonResponse({"status": "okay"}, status=200)
 
@@ -251,3 +259,20 @@ class LinkedAccounts(APIView):
             }
             linked_data.append(data)
         return JsonResponse({"status": "success", "data": linked_data}, status=200)
+    
+
+class NotificationEndpoint(APIView):
+  
+  def post(self, request, *args, **kwargs):
+    
+    device_id = request.data.get('device_id', False)
+    user = request.user
+    user_device, user_device_created = UserDevice.objects.get_or_create(user=user, device_id=device_id)
+    if user_device_created:
+      arn = create_sns_endpoint(device_id)
+      endpoint_arn = arn['EndpointArn']
+      user_device.arn = endpoint_arn
+      user_device.user = user
+      user_device.save()
+      
+    return JsonResponse({'status': 'ok', 'user_data': model_to_dict(user_device)}, status=201 if user_device_created else 200)

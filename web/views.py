@@ -17,6 +17,6 @@ def address_request(request, uidb64):
         request_obj.expired = True
         request_obj.save()
         return HttpResponse("Request Expired")
-    context = {"request_from_name": request_obj.request_from.name, "masked_aadhaar":request_obj.request_from.masked_aadhaar, "image": request_obj.request_from.photo.url}
+    context = {"id": pk,"request_from_name": request_obj.request_from.name, "masked_aadhaar":request_obj.request_from.masked_aadhaar, "image": request_obj.request_from.photo.url}
     print(context)
     return render(request, 'web/request.html', context)
