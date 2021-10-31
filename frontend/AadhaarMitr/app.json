@@ -1,6 +1,9 @@
 {
   "expo": {
     "name": "AadhaarMitr",
+    "plugins": [
+      "@notifee/react-native"
+    ],
     "slug": "AadhaarMitr",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,13 +20,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aadhaarmitr.aadhaarmitr"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "package": "com.aadhaarmitr.aadhaarmitr"
     },
     "web": {
       "favicon": "./assets/favicon.png"
