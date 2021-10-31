@@ -33,7 +33,7 @@ function OTPScreen(props) {
         const timerInterval = setInterval(() => {
             if (resendTimer > 1 && resendText !== "Resend OTP") {
                 resendTimer--;
-                setResendText(`Resend OTP (${resendTimer} Seconds)`);
+                setResendText(`Please Wait`);
             }
             else {
                 setResendText("Resend OTP");
@@ -53,7 +53,7 @@ function OTPScreen(props) {
 
         axiosUnauthorizedInstance(requestOptions)
         .then((response) => {
-            setResendText(`Resend OTP (${resendTimer} Seconds)`);
+            setResendText(`Please Wait`);
             resendTimer = 60;
             setResendTrigger(!resendTrigger);
         })

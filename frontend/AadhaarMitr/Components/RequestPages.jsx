@@ -40,7 +40,7 @@ function RequestCompleted(props) {
                 </View>
             </View>
             <View style={styles.requestButtons}>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8, backgroundColor: '#3AA76D' }]} onPress={() => props.accessAddress()}>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8, backgroundColor: '#3AA76D' }]}>
                     <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/>
                     <Text style={styles.requestButtonText}>{'Accessing Address'}</Text> 
                 </TouchableOpacity>

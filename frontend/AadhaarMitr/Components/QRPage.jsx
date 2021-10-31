@@ -5,30 +5,20 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 
+const baseURL = 'https://aadhaarmitr.tech'
+
 function QRPage(props) {
     const navigation = useNavigation();
-    const focused = useIsFocused();
-
-    const [loaded, setLoaded] = useState();
-
-    useEffect(() => {
-        getRequestData();
-    }, []);
-
-    const getRequestData = () => {
-        const requestOptions = {
-            method: 'get',
-            url: '/api/address/send-request-to-landlord/?platform=mobile',
-        }
-
-        axiosInstance(requestOptions)
-        .then((response) => { console.log(response); setLoaded(true); })
-        .catch((error) => { console.error(error); });
-    }
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
-            { loaded ? <ActivityIndicator size={'large'} color={'#000000'}/> : null }
+            <Text style={styles.userTitle}>Aadhaar CheckIn</Text>
+            <Text style={styles.userSubtitle}>Show the following QR Code to the verifier to allow them to validate your details.</Text>
+            <Image source={{ uri: baseURL + ''/*props.route.params.url*/ }} style={{ width: Dimensions.get('window').width * 0.8, height: Dimensions.get('window').width * 0.8 }} />
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeScreen')}>
+                <Ionicons name={'shield-checkmark'} size={24} color={'#FFFFFF'}/> 
+                <Text style={styles.buttonText}>Complete CheckIn</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -123,17 +113,21 @@ const styles = StyleSheet.create({
     },
 
     userTitle: {
-        fontSize: 20,
+        fontSize: 32,
         fontFamily: 'Sora_600SemiBold',
+        marginBottom: 24,
     },
 
     userSubtitle: {
         marginTop: 8,
+        marginBottom: 16,
+
+        marginHorizontal: 24,
 
         fontSize: 18,
         fontFamily: 'Roboto_400Regular',
 
-        letterSpacing: 4,
+        letterSpacing: 0,
     },
 
     titleText: {
