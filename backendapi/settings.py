@@ -12,6 +12,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.getenv("DEBUG")=="1" else False
+SEND_MESSAGES = True if os.getenv("SEND_MESSAGES")=="1" else False
 
 
 if not DEBUG:
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
     'accounts',
     'authentication',
     'address',
+    'web',
 ]
 
 MIDDLEWARE = [
@@ -135,6 +137,10 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ]
 }
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_DEFAULT_REGION_NAME = 'ap-south-1'
 
 LANGUAGE_CODE = 'en-us'
 

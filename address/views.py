@@ -2,17 +2,22 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.forms import model_to_dict
 from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
-from accounts.models import UserProfile
 from accounts.utils import xml_to_dict
+from accounts.models import UserProfile
+from address.utils import create_request_sms, send_message_using_sns
 from address.models import Address, TenantRequestToLandlord, UserRentedAddress
 
+import os
+import pytz
 from zipfile import ZipFile
 from datetime import datetime
-import os
+
+tz = pytz.timezone('Asia/Kolkata')
 
 
 class RequestToLandlord(APIView):
@@ -86,7 +91,10 @@ class RequestToLandlord(APIView):
         
         # if exists send notification - pending
         # if not send sms - pending
-        
+        if user == None:
+            current_site = get_current_site(request)
+            request_sms = create_request_sms(tenant_request.request_from.name, mobileNumber, tenant_request.id, current_site, tenant_request.expires_after)
+            send_sms = send_message_using_sns(mobileNumber, request_sms)
         return JsonResponse({"status": "ok", "data": model_to_dict(tenant_request)}, status=200)
 
 class ChangeAddressRequestStatus(APIView):
@@ -103,10 +111,10 @@ class ChangeAddressRequestStatus(APIView):
         tenant_request = TenantRequestToLandlord.objects.get(id=requestId)
         if requestStatus and requestStatus == 'accept':
             tenant_request.request_approved = True
-            tenant_request.request_approved_timestamp = datetime.now()
+            tenant_request.request_approved_timestamp = datetime.now(tz)
         elif requestStatus and requestStatus == 'decline':
             tenant_request.request_declined = True
-            tenant_request.request_declined_timestamp = datetime.now()
+            tenant_request.request_declined_timestamp = datetime.now(tz)
         tenant_request.save()
 
         return JsonResponse({"status": "ok", "data": model_to_dict(tenant_request)}, status=200)
@@ -173,7 +181,7 @@ class RequestApprovedAndSaveAddress(APIView):
         tenant_request = TenantRequestToLandlord.objects.get(id=requestId)
 
         tenant_request.request_completed_by_tenant = True
-        tenant_request.request_completed_by_tenant_timestamp = datetime.now()
+        tenant_request.request_completed_by_tenant_timestamp = datetime.now(tz)
         tenant_request.save()
         
         new_address_obj = Address.objects.create(address_object=addressData)

@@ -14,11 +14,13 @@ from accounts.models import UserKYC, UserProfile
 from accounts.new_ekyc import EkycOffline as FastKyc
 from address.models import TenantRequestToLandlord, Address, State, District, UserRentedAddress
 
-import json
+import pytz
 import uuid
 import base64
 from datetime import datetime
 
+
+tz = pytz.timezone('Asia/Kolkata')
 
 class GenerateCaptchaforEkyc(APIView):
     permission_classes = [AllowAny]
@@ -90,7 +92,7 @@ class GetEKYC(APIView):
         otp_object = OTP.objects.get(txnId=txnId)
         if data_from_api['status'] == 'Success':
             otp_object.verified = True
-            otp_object.verified_timestamp = datetime.now() 
+            otp_object.verified_timestamp = datetime.now(tz) 
             otp_object.save()
             #b64 data to file object
             b64_string = data_from_api['eKycXML']
@@ -103,7 +105,7 @@ class GetEKYC(APIView):
             
             # save file to either localstorage or s3
             request_obj = TenantRequestToLandlord.objects.get(id=request_id)
-            request_obj.request_approved_timestamp = datetime.now()
+            request_obj.request_approved_timestamp = datetime.now(tz)
             request_obj.request_approved = True
             request_obj.kyc = user_kyc
             request_obj.save()
@@ -147,7 +149,7 @@ class FastKYCVerifyOtp(APIView):
         otp_object = OTP.objects.get(txn_id=txnId)
         if otp_response['status'] == 'y' or 'Y':
             otp_object.verified = True
-            otp_object.verified_timestamp = datetime.now() 
+            otp_object.verified_timestamp = datetime.now(tz) 
             otp_object.save()
             return JsonResponse({"status": "okay", "data": otp_response}, status=200)
 
@@ -170,7 +172,7 @@ class FastKYCEKyc(APIView):
         otp_object = OTP.objects.get(txn_id=txnId)
         if otp_response['status'] == 'y' or otp_response['status'] == 'Y':
             otp_object.verified = True
-            otp_object.verified_timestamp = datetime.now() 
+            otp_object.verified_timestamp = datetime.now(tz) 
             otp_object.save()         
             
             xml_data_dict = xml_to_dict(otp_response["eKycString"])
@@ -237,14 +239,14 @@ class LinkedAccounts(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         profile = UserProfile.objects.get(user=user)
-        requests_landlord = TenantRequestToLandlord.objects.filter(requests_to=profile, request_completed_by_tenant=True)
+        requests_landlord = TenantRequestToLandlord.objects.filter(request_to=profile, request_completed_by_tenant=True)
         linked_data = []
         for r in requests_landlord:
             ura = UserRentedAddress.objects.get(request_id=r)
             data = {
-                "name": r.request_to.name if r.request_to else r.request_to_mobile,
-                "phone": r.request_to_mobile,
-                "photo": r.request_to.photo.url if r.request_to else None,
+                "name": r.request_from.name,
+                "phone": r.request_from.mobile_number,
+                "photo": r.request_from.photo.url if r.request_from else None,
                 "address": ura.rented_address.address_object
             }
             linked_data.append(data)

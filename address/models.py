@@ -1,7 +1,10 @@
 from django.db import models
+from django.db.models.signals import post_save
 from django.core.validators import RegexValidator
 
 from accounts.models import UserProfile, UserKYC
+
+from datetime import datetime, timedelta
 
 class TenantRequestToLandlord(models.Model):
     phone_regex = RegexValidator(regex=r'^[6-9]\d{9}$', message ="Phone number must be entered in the format: '[6,7,8,9]xxxxxxxxx'. Approx 10 digits allowed.")
@@ -14,6 +17,8 @@ class TenantRequestToLandlord(models.Model):
     request_declined = models.BooleanField(default=False)
     request_completed_by_tenant = models.BooleanField(default=False)
 
+    expired = models.BooleanField(default=False)
+    expires_after = models.DateTimeField(null=True)
     created_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
     request_declined_timestamp = models.DateTimeField(blank=True, null=True)
@@ -25,6 +30,12 @@ class TenantRequestToLandlord(models.Model):
     kyc = models.ForeignKey(UserKYC, null=True, blank=True, on_delete=models.SET_NULL)
     active = models.BooleanField(default=True)
 
+def create_expiry_for_request(sender, instance, created, **kwargs):
+    if created:
+        instance.expires_after = instance.created_on + timedelta(days=7)
+        instance.save()
+
+post_save.connect(create_expiry_for_request, sender=TenantRequestToLandlord)
 
 class State(models.Model):
     unique_id = models.IntegerField(default=0)
