@@ -1,22 +1,23 @@
-from django.forms.models import model_to_dict
 from django.http import JsonResponse
+from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from django.core.files.base import ContentFile
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 
+from authentication.models import OTP
 from accounts.ekyc import EkycOffline
-from django.contrib.auth.models import User
+from accounts.utils import xml_to_dict
 from accounts.models import UserKYC, UserProfile
 from accounts.new_ekyc import EkycOffline as FastKyc
-from accounts.utils import xml_to_dict
 from address.models import TenantRequestToLandlord, Address, State, District, UserRentedAddress
 
-from datetime import datetime
-import base64
 import json
 import uuid
+import base64
+from datetime import datetime
 
 
 class GenerateCaptchaforEkyc(APIView):
@@ -52,6 +53,10 @@ class SendOTPforEkyc(APIView):
         
         data_from_api = ekyc.generate_otp(uid, captchaTxnId, captchaValue)
         
+        otp_object = OTP.objects.create(txn_id=data_from_api["txnId"])
+        
+        # TODO: create otp object here
+        
         if data_from_api['status'] == 'Failed':
             return JsonResponse({"status": "Failed", "data": data_from_api}, status = data_from_api['ErrorCode'])
         
@@ -79,9 +84,14 @@ class GetEKYC(APIView):
         
         ekyc = EkycOffline()
         
-        data_from_api = ekyc.get_ekyc(uid, otp, txnId, share_code)
+        # verify otp object here
         
+        data_from_api = ekyc.get_ekyc(uid, otp, txnId, share_code)
+        otp_object = OTP.objects.get(txnId=txnId)
         if data_from_api['status'] == 'Success':
+            otp_object.verified = True
+            otp_object.verified_timestamp = datetime.now() 
+            otp_object.save()
             #b64 data to file object
             b64_string = data_from_api['eKycXML']
             b64_file = ContentFile(base64.b64decode(b64_string), name=data_from_api["fileName"])
@@ -114,6 +124,7 @@ class FastKYCSendOtp(APIView):
         ekyc = FastKyc()
         txnId = str(uuid.uuid4())
         otp_response = ekyc.generate_otp(uid, txnId)
+        otp_object = OTP.objects.create(txn_id=txnId)
         
         if otp_response['status'] == 'y' or 'Y':           
             return JsonResponse({"status": "okay", "data": otp_response, "txnId": txnId}, status=200)
@@ -128,14 +139,16 @@ class FastKYCVerifyOtp(APIView):
         uid = request.data.get('uid', False)
         txnId = request.data.get('txnId', False)
         otp = request.data.get('otp', False)
-        
         if not (uid and txnId and otp):
             return JsonResponse({"status": "not enough data"}, status=400)
         
         ekyc = FastKyc()
         otp_response = ekyc.verify_otp(uid, txnId, otp)
-        
-        if otp_response['status'] == 'y' or 'Y':           
+        otp_object = OTP.objects.get(txn_id=txnId)
+        if otp_response['status'] == 'y' or 'Y':
+            otp_object.verified = True
+            otp_object.verified_timestamp = datetime.now() 
+            otp_object.save()
             return JsonResponse({"status": "okay", "data": otp_response}, status=200)
 
         if otp_response['status'] == 'n' or 'N':
@@ -148,15 +161,17 @@ class FastKYCEKyc(APIView):
         uid = request.data.get('uid', False)
         txnId = request.data.get('txnId', False)
         otp = request.data.get('otp', False)
-        
+        print(txnId)
         if not (uid and txnId and otp):
             return JsonResponse({"status": "not enough data"}, status=400)
         
         ekyc = FastKyc()
         otp_response = ekyc.get_ekyc(uid, txnId, otp)
-        
+        otp_object = OTP.objects.get(txn_id=txnId)
         if otp_response['status'] == 'y' or otp_response['status'] == 'Y':
-                      
+            otp_object.verified = True
+            otp_object.verified_timestamp = datetime.now() 
+            otp_object.save()         
             
             xml_data_dict = xml_to_dict(otp_response["eKycString"])
             
