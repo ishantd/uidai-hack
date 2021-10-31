@@ -53,7 +53,7 @@ function HomePage(props) {
             console.log(response.data);
             setUserData(response.data.profile_data);
         })
-        .catch((error) => { console.error(error); });
+        .catch((error) => { console.log(error.message); if ( error.message === 'Request failed with status code 401' ) { clear('token'); navigation.navigate('LoginScreen'); } });
     }
 
     const getRequestData = () => {
@@ -84,7 +84,7 @@ function HomePage(props) {
         <React.Fragment>
         <ScrollView style={styles.page} contentContainerStyle={styles.pageContainer}>
             <View style={styles.userBox}>
-                <Image style={styles.userIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + userData.img_url }}/>
+                <Image style={styles.userIcon} source={{ uri: 'https://aadhaarmitr.tech' + userData.img_url }}/>
                 <View style={styles.userText}>
                     <Text style={styles.userTitle}>{userData.name}</Text>
                     <Text style={styles.userSubSubtitle}>{userData.mobile_number}</Text>
@@ -106,6 +106,10 @@ function HomePage(props) {
             <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("AddressSharingScreen") }}>
                 <Ionicons name={'person'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Accounts Linked'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("CameraScreen") }}>
+                <Ionicons name={'shield-checkmark'} size={24} color={'#FFFFFF'}/> 
+                <Text style={styles.buttonText}>{'Aadhaar CheckIn'}</Text>
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.8} style={[styles.button, { backgroundColor: '#0245CB', marginTop: 64, }]} onPress={() => { clear('token'); navigation.navigate("LoginScreen"); }}>
                 <Ionicons name={'log-out'} size={24} color={'#FFFFFF'}/> 

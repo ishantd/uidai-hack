@@ -6,6 +6,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import AadhaarLogo from '../Images/Aadhaar';
+import messaging from '@react-native-firebase/messaging';
 
 async function save(key, value) {
     await SecureStore.setItemAsync(key, value);
@@ -67,7 +68,22 @@ function OTPScreen(props) {
             url: '/api/accounts/new-ekyc/get-ekyc/',
             data: { uid: aadhaar, txnId: data.txnId, otp: OTP }
         }
-        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); save("token", response.data.token); setClientToken(response.data.token); navigation.navigate("HomeScreen"); }).catch((error) => { console.error(error); setProcessingRequest(false); });
+        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); save("token", response.data.token); setClientToken(response.data.token); }).then(() => { getAndSetMessagingToken(); }).catch((error) => { console.error(error); setProcessingRequest(false); });
+    }
+
+    async function getAndSetMessagingToken() {
+        await messaging().registerDeviceForRemoteMessages();
+        const token = await messaging().getToken();
+
+        const requestOptions = {
+            method: 'post',
+            url: '/api/accounts/new-device/',
+            data: { device_id: token }
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); navigation.navigate("HomeScreen"); })
+        .catch((error) => { console.error(error); });
     }
 
     return (

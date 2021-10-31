@@ -1,98 +1,39 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
-import { axiosInstance } from '../axiosInstance';
+import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator, Alert } from 'react-native';
+import { axiosUnauthorizedInstance, axiosInstance } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 
-function RequestAccepted(props) {
-    const [expanded, setExpanded] = useState(false);
+function QRPage(props) {
+    const navigation = useNavigation();
+    const focused = useIsFocused();
 
-    const [addressLine1, setAddressLine1] = useState();
-    const [addressLine2, setAddressLine2] = useState();
-    const [addressLine3, setAddressLine3] = useState();
+    const [loaded, setLoaded] = useState();
 
     useEffect(() => {
-        setAddressLine1(props.address['@house'] + ' ' + props.address['@street'] + ' ' + ( props.address['@landmark'].length > 0 ? 'Near ' + props.address['@landmark'] : null ));
-        setAddressLine2(props.address['@subdist'] + ' ' + props.address['@dist'] + ' ' + props.address['@vtc']);
-        setAddressLine3(props.address['@pc'] + ' ' + props.address['@state'] + ' ' + props.address['@country']);
+        getRequestData();
     }, []);
 
-    return (
-        !expanded ?
-        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center' }]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.photo }}/>
-                <View style={styles.requestText}>
-                    <Text style={styles.requestTitle}>{props.name}</Text>
-                    <Text style={styles.requestSubtitle}>{props.phone}</Text>
-                </View>
-            </View>
-            <View style={styles.requestButtons}>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]} onPress={() => setExpanded(true)}>
-                    <Ionicons name={'eye'} size={24} color={'#FFFFFF'}/>
-                    <Text style={styles.requestButtonText}>{'View Address'}</Text> 
-                </TouchableOpacity>
-            </View>
-        </View> : 
-        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center' }]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.photo }}/>
-                <View style={styles.requestText}>
-                    <Text style={styles.requestTitle}>{props.name}</Text>
-                    <Text style={styles.requestSubtitle}>{props.phone}</Text>
-                    <View style={{ marginVertical: 12 }}>
-                        <Text style={styles.requestAddress}>{addressLine1}</Text>
-                        <Text style={styles.requestAddress}>{addressLine2}</Text>
-                        <Text style={styles.requestAddress}>{addressLine3}</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={styles.requestButtons}>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]} onPress={() => setExpanded(false)}>
-                    <Ionicons name={'eye-off'} size={24} color={'#FFFFFF'}/>
-                    <Text style={styles.requestButtonText}>{'Hide Address'}</Text> 
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
-}
-
-function AddressSharingScreen(props) {
-    const [accounts, setAccounts] = useState();
-    const [loaded, setLoaded] = useState(false);
-
-    useEffect(() => {
+    const getRequestData = () => {
         const requestOptions = {
             method: 'get',
-            url: '/api/accounts/linked/',
+            url: '/api/address/send-request-to-landlord/?platform=mobile',
         }
 
         axiosInstance(requestOptions)
-        .then((response) => { console.log(response.data.data); setLoaded(true); setAccounts(response.data.data); })
+        .then((response) => { console.log(response); setLoaded(true); })
         .catch((error) => { console.error(error); });
-    }, []);
+    }
 
     return (
-        loaded && accounts ? 
-        <View style={styles.page}>
-            {
-                accounts.length > 0 ? 
-                <View style={styles.requestSection}>
-                    { accounts.map((account, index) => <RequestAccepted key={index} {...account}/>) }
-                </View> :
-                <View style={styles.requestSectionEmpty}>
-                    <Text style={[styles.viewAllRequests, { color: '#00000088' }]}>No Accounts Linked To Your Address</Text>
-                </View>
-            }
-        </View> : 
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
-            <ActivityIndicator size={'large'} color={'#000000'}/>
+            { loaded ? <ActivityIndicator size={'large'} color={'#000000'}/> : null }
         </View>
     );
 }
 
-export default AddressSharingScreen;
+export default QRPage;
 
 const styles = StyleSheet.create({
     page: {
@@ -247,12 +188,6 @@ const styles = StyleSheet.create({
         marginBottom: 32
     },
 
-    requestSectionEmpty: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        flex: 1,
-    },
-
     requestBox: {
         backgroundColor: '#FFFFFF',
         borderColor: '#0245CB',
@@ -265,6 +200,7 @@ const styles = StyleSheet.create({
 
         marginHorizontal: '5%',
         width: '90%',
+        height: 96,
 
         borderRadius: 8,
 
@@ -279,8 +215,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
 
-        marginHorizontal: 16,
-        marginTop: 16
+        marginHorizontal: 16
     },
 
     requestText: {
@@ -288,8 +223,6 @@ const styles = StyleSheet.create({
     },
 
     requestTitle: {
-        marginTop: 16,
-
         fontSize: 18,
         fontFamily: 'Sora_600SemiBold',
     },
@@ -301,13 +234,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto_400Regular',
 
         letterSpacing: 4,
-    },
-
-    requestAddress: {
-        marginTop: 8,
-
-        fontSize: 16,
-        fontFamily: 'Roboto_400Regular',
     },
 
     requestTrash: {
@@ -329,7 +255,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: -18,
         marginLeft: -2, 
-        marginRight: -2,
+        marginRight: 0,
     },
 
     requestButton: {

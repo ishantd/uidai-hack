@@ -18,6 +18,23 @@ import { setClientToken } from './axiosInstance';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { MaterialIcons } from '@expo/vector-icons'; 
 
+import notifee from '@notifee/react-native';
+import messaging from '@react-native-firebase/messaging';
+import CameraPage from './Components/CameraPage';
+import QRPage from './Components/QRPage';
+
+async function onMessageReceived(message) {
+	const channelId = await notifee.createChannel({
+		id: 'aadhaarmitr-updates',
+		name: 'AadhaarMitr Updates'
+	});
+
+  	notifee.displayNotification({ title: `<p style="font-size: 20"><b>${message.data.title}</b></p>`, body: `<p style="font-size: 16">${message.data.body}</p>`, android: { channelId: channelId, smallIcon: 'ic_launcher', color: '#000000' } });
+}
+
+messaging().onMessage(onMessageReceived);
+messaging().setBackgroundMessageHandler(onMessageReceived);
+
 async function getValueFor(key) {
     return await SecureStore.getItemAsync(key);
 }
@@ -40,7 +57,7 @@ function App() {
 
   	const [loaded, setLoaded] = useState(false);
   	const [defaultScreen, setDefaultScreen] = useState('LoginScreen');
-	const [authenticated, setAuthenticated] = useState(true);
+	const [authenticated, setAuthenticated] = useState(false);
 
   	useEffect(() => {
     	async function fetchValue() {    
@@ -92,6 +109,8 @@ function App() {
 					<Stack.Screen name="PasscodeCaptchaScreen" component={PasscodeCaptchaScreen} options={{ title: 'Accept Address Request', headerBackVisible: false }}/>
       		    	<Stack.Screen name="AddressScreen" component={AddressScreen} options={{ title: 'Edit Address', headerBackVisible: false }}/>
       		    	<Stack.Screen name="AddressSharingScreen" component={AddressSharingScreen} options={{ title: 'Linked Accounts' }}/> 
+					<Stack.Screen name="CameraScreen" component={CameraPage} options={{ headerShown: false }}/>
+					<Stack.Screen name="QRScreen" component={QRPage} options={{ headerShown: false }}/>
       		  	</Stack.Navigator>
       		</NavigationContainer>
     	);

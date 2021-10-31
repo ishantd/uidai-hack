@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "374532943473",
+    "project_id": "crafty-coral-330621",
+    "storage_bucket": "crafty-coral-330621.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:374532943473:android:871e828e22b2efed6cf5d0",
+        "android_client_info": {
+          "package_name": "com.aadhaarmitr.aadhaarmitr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "374532943473-2p61ph9pns56hlkpur9r1g3bhcr3l6aj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWiT-CdYQTw5-bEGvPP0MsEbr7LkjOuZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "374532943473-2p61ph9pns56hlkpur9r1g3bhcr3l6aj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

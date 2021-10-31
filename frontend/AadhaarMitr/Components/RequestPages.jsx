@@ -5,13 +5,15 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 
+const baseURL = 'https://aadhaarmitr.tech';
+
 function RequestAccepted(props) {
     const navigation = useNavigation();
 
     return (
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.url }}/>
+                <Image style={styles.requestIcon} source={{ uri: baseURL + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -31,7 +33,7 @@ function RequestCompleted(props) {
     return (
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136, borderColor: '#3AA76D' }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.url }}/>
+                <Image style={styles.requestIcon} source={{ uri: baseURL + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -71,7 +73,7 @@ function RequestOutgoing(props) {
 
     return (
         <Animatable.View style={styles.requestBox} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
-            <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.url }}/>
+            <Image style={styles.requestIcon} source={{ uri: baseURL + props.url }}/>
             <View style={styles.requestText}>
                 <Text style={styles.requestTitle}>{props.name}</Text>
                 <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -143,7 +145,7 @@ function RequestIncoming(props) {
     return (
         <Animatable.View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.url }}/>
+                <Image style={styles.requestIcon} source={{ uri: baseURL + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
