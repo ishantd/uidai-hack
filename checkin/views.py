@@ -13,25 +13,17 @@ from rest_framework.permissions import AllowAny
 from accounts.models import UserProfile
 from checkin.models import EncryptedQRCode, MatchFace
 from checkin.utils import compare_faces_for_checkin
+from qrcode.image.pure import PymagingImage
 
 import base64
 import qrcode
 import os
 import qrcode
+import qrcode.image.svg
 
 def generate_qr(data):
-    qr = qrcode.QRCode(
-    version=1,
-    error_correction=qrcode.constants.ERROR_CORRECT_L,
-    box_size=10,
-    border=4,
-    )
-    qr.add_data(data)
-    qr.make(fit=True)
-
-    img = qr.make_image(fill_color="black", back_color="white")
-    buf = io.BytesIO()
-    return buf.getvalue()
+    img = qrcode.make(data, image_factory=PymagingImage)
+    return img
 
 class MatchFaces(APIView):
     
@@ -55,7 +47,8 @@ class MatchFaces(APIView):
         if face_result:
             qr_data = f'{user_profile.name}-{user_profile.mobile_number}'
             data = urlsafe_base64_encode(force_bytes(qr_data))
-            eqr = EncryptedQRCode.objects.create(user=user, image=generate_qr(data))
+            svg_data = generate_qr(data)
+            eqr = EncryptedQRCode.objects.create(user=user, image=svg_data)
             return JsonResponse({"status": "success", "qrcode": eqr.image.url}, status=200)
         return JsonResponse({"status": "not match"}, status=400)
 
