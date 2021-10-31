@@ -31,7 +31,7 @@ def generate_qr(data):
 
     img = qr.make_image(fill_color="black", back_color="white")
     buf = io.BytesIO()
-    img.save(buf, "JPG")
+    img.save(buf, "PNG")
     return buf.getvalue()
 
 class MatchFaces(APIView):
