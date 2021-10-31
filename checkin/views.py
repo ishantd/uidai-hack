@@ -1,3 +1,4 @@
+import io
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.forms import model_to_dict
@@ -29,8 +30,8 @@ def generate_qr(data):
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
-
-    return img
+    buf = io.BytesIO()
+    return buf.getvalue()
 
 class MatchFaces(APIView):
     
