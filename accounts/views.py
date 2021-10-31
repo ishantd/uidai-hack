@@ -53,6 +53,8 @@ class SendOTPforEkyc(APIView):
         
         data_from_api = ekyc.generate_otp(uid, captchaTxnId, captchaValue)
         
+        otp_object = OTP.objects.create(txn_id=data_from_api["txnId"])
+        
         # TODO: create otp object here
         
         if data_from_api['status'] == 'Failed':
@@ -85,8 +87,11 @@ class GetEKYC(APIView):
         # verify otp object here
         
         data_from_api = ekyc.get_ekyc(uid, otp, txnId, share_code)
-        
+        otp_object = OTP.objects.get(txnId=txnId)
         if data_from_api['status'] == 'Success':
+            otp_object.verified = True
+            otp_object.verified_timestamp = datetime.now() 
+            otp_object.save()
             #b64 data to file object
             b64_string = data_from_api['eKycXML']
             b64_file = ContentFile(base64.b64decode(b64_string), name=data_from_api["fileName"])
@@ -119,7 +124,6 @@ class FastKYCSendOtp(APIView):
         ekyc = FastKyc()
         txnId = str(uuid.uuid4())
         otp_response = ekyc.generate_otp(uid, txnId)
-        print(txnId)
         otp_object = OTP.objects.create(txn_id=txnId)
         
         if otp_response['status'] == 'y' or 'Y':           
@@ -135,7 +139,6 @@ class FastKYCVerifyOtp(APIView):
         uid = request.data.get('uid', False)
         txnId = request.data.get('txnId', False)
         otp = request.data.get('otp', False)
-        print(txnId)
         if not (uid and txnId and otp):
             return JsonResponse({"status": "not enough data"}, status=400)
         
@@ -181,7 +184,7 @@ class FastKYCEKyc(APIView):
             
             
             masked_aadhaar = uid[-4:]
-            username = f'{phone[-4:]}x{masked_aadhaar}'
+            username = f'{phone}x{masked_aadhaar}'
             image_data = ContentFile(base64.b64decode(photo_b64_string), name=f'{username}.jpg')
             user, user_created = User.objects.get_or_create(username=username)
             if user_created:
