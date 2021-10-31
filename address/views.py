@@ -117,12 +117,12 @@ class ChangeAddressRequestStatus(APIView):
             tenant_request.request_approved = True
             tenant_request.request_approved_timestamp = datetime.now(tz)
             user_device = UserDevice.objects.filter(user=tenant_request.request_from.user).last()
-            trigger_single_notification(user_device.arn, "Request Approved", f'{user_device.request_to.name} has approved your request for address share. Please verify.')
+            trigger_single_notification(user_device.arn, "Request Approved", f'{tenant_request.request_to.name if tenant_request.request_to else "User"} has approved your request for address share. Please verify.')
         elif requestStatus and requestStatus == 'decline':
             tenant_request.request_declined = True
             tenant_request.request_declined_timestamp = datetime.now(tz)
             user_device = UserDevice.objects.filter(user=tenant_request.request_from.user).last()
-            trigger_single_notification(user_device.arn, "Request Declined", f'{user_device.request_to.name} has declined your request for address share')
+            trigger_single_notification(user_device.arn, "Request Declined", f'{tenant_request.request_to.name if tenant_request.request_to else "User"} has declined your request for address share')
         
         tenant_request.save()
 

@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 
 from authentication.models import OTP
 from accounts.ekyc import EkycOffline
-from accounts.utils import xml_to_dict, create_sns_endpoint
+from accounts.utils import xml_to_dict, create_sns_endpoint, trigger_single_notification
 from accounts.new_ekyc import EkycOffline as FastKyc
 from accounts.models import UserKYC, UserProfile, UserDevice
 from address.models import TenantRequestToLandlord, Address, State, District, UserRentedAddress
@@ -115,6 +115,10 @@ class GetEKYC(APIView):
             request_obj.kyc = user_kyc
             request_obj.save()
             # record ekyc transaction and file location
+            
+            if request_obj.request_approved == True:
+                user_device = UserDevice.objects.filter(user=request_obj.request_from.user).last()
+                trigger_single_notification(user_device.arn, "Request Approved", f'{request_obj.request_to.name if request_obj.request_to else "User"} has approved your request for address share. Please verify.')
             
             return JsonResponse({"status": "okay"}, status=200)
 
