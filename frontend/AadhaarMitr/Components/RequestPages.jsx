@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
+import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator, Alert } from 'react-native';
 import { axiosUnauthorizedInstance, axiosInstance } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -51,6 +51,10 @@ function RequestOutgoing(props) {
     const [viewAnimation, setViewAnimation] = useState(null);
     const deleteAnimation = { 0: { translateY: 0, opacity: 1 }, 0.5: { translateY: -5, opacity: 0.25 }, 1: { translateY: -10, opacity: 0 } };
 
+    const showCancellationAlert = () => {
+        Alert.alert('Alert', 'Are you sure you want to Delete this request? This action cannot be reversed.', [{ text: 'Delete', style: 'destructive', onPress: () => cancelRequest() }, { text: 'Cancel', style: 'default' }]);
+    }
+
     const cancelRequest = () => {
         const requestOptions = {
             method: 'post',
@@ -72,7 +76,7 @@ function RequestOutgoing(props) {
                 <Text style={styles.requestTitle}>{props.name}</Text>
                 <Text style={styles.requestSubtitle}>{props.phone}</Text>
             </View>
-            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash} onPress={() => cancelRequest()}>
+            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash} onPress={() => showCancellationAlert()}>
                 <Ionicons name={'trash'} size={32} color={'#FFFFFF'}/> 
             </TouchableOpacity>
         </Animatable.View>
@@ -82,6 +86,10 @@ function RequestOutgoing(props) {
 function RequestOutgoingNoUser(props) {
     const [viewAnimation, setViewAnimation] = useState(null);
     const deleteAnimation = { 0: { translateY: 0, opacity: 1 }, 0.5: { translateY: -5, opacity: 0.25 }, 1: { translateY: -10, opacity: 0 } };
+
+    const showCancellationAlert = () => {
+        Alert.alert('Alert', 'Are you sure you want to Delete this request? This action cannot be reversed.', [{ text: 'Delete', style: 'destructive', onPress: () => cancelRequest() }, { text: 'Cancel', style: 'default' }]);
+    }
 
     const cancelRequest = () => {
         const requestOptions = {
@@ -103,7 +111,7 @@ function RequestOutgoingNoUser(props) {
             <View style={styles.requestText}>
                 <Text style={[styles.requestTitle, { letterSpacing: 3 }]}>{props.phone}</Text>
             </View>
-            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash} onPress={() => cancelRequest()}>
+            <TouchableOpacity activeOpacity={0.9} style={styles.requestTrash} onPress={() => showCancellationAlert()}>
                 <Ionicons name={'trash'} size={32} color={'#FFFFFF'}/> 
             </TouchableOpacity>
         </Animatable.View>
@@ -115,6 +123,10 @@ function RequestIncoming(props) {
 
     const [viewAnimation, setViewAnimation] = useState(null);
     const deleteAnimation = { 0: { translateY: 0, opacity: 1 }, 0.5: { translateY: -5, opacity: 0.25 }, 1: { translateY: -10, opacity: 0 } };
+
+    const showCancellationAlert = () => {
+        Alert.alert('Alert', 'Are you sure you want to Decline this request? This action cannot be reversed.', [{ text: 'Decline', style: 'destructive', onPress: () => cancelRequest() }, { text: 'Cancel', style: 'default' }]);
+    }
 
     const cancelRequest = () => {
         const requestOptions = {
@@ -142,7 +154,7 @@ function RequestIncoming(props) {
                     <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/>
                     <Text style={styles.requestButtonText}>{'Accept'}</Text> 
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { backgroundColor: '#FFFFFF', borderBottomRightRadius: 8 }]} onPress={() => cancelRequest()}>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { backgroundColor: '#FFFFFF', borderBottomRightRadius: 8 }]} onPress={() => showCancellationAlert()}>
                     <Ionicons name={'close-circle'} size={24} color={'#000000'}/> 
                     <Text style={[styles.requestButtonText, { color: '#000000' }]}>{'Decline'}</Text>
                 </TouchableOpacity>

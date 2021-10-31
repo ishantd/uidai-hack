@@ -1,0 +1,6 @@
+module Pods_AadhaarMitr {
+  umbrella header "Pods-AadhaarMitr-umbrella.h"
+
+  export *
+  module * { export * }
+}
