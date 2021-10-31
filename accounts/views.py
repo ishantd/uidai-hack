@@ -79,6 +79,7 @@ class GetEKYC(APIView):
         otp = request.data.get('otp', False)
         txnId = request.data.get('txnId', False)
         share_code = request.data.get('shareCode', False)
+        web = request.data.get('web', False)
         
         if not (uid and txnId and otp and share_code):
             return JsonResponse({"status": "not enough data"}, status=400)
@@ -114,7 +115,11 @@ class GetEKYC(APIView):
             request_obj.kyc = user_kyc
             request_obj.save()
             # record ekyc transaction and file location
-     
+
+            if web:
+                request_obj.request_approved = True
+                request_obj.request_approved_timestamp = datetime.now(tz)
+            request_obj.save()
             
             return JsonResponse({"status": "okay"}, status=200)
 

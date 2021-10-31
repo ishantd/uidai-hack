@@ -56,7 +56,8 @@ $("#verify-otp").submit(function (e) {
         "txnId": window.otp_txn_id,
         "otp": $("#otp").val(),
         "shareCode": $("#passcode").val(),
-        "request_id": $("#rid").val()
+        "request_id": $("#rid").val(),
+        "web": true
     }
     var json_data = JSON.stringify(data);
     $.ajax({
