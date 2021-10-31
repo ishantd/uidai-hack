@@ -45,11 +45,11 @@ class MatchFaces(APIView):
         user_profile = UserProfile.objects.get(user=user)
         user_profile_image = user_profile.photo.url
         
-        with open(os.path.join(settings.BASE_DIR, user_profile_image), "rb") as image_file:
-            source_image_bytes = base64.b64encode(image_file.read())
+        # with open(os.path.join(settings.BASE_DIR, user_profile_image), "rb") as image_file:
+        #     source_image_bytes = base64.b64encode(image_file.read())
         input_image_file = ContentFile(base64.b64decode(image), name=f'{user.username}.jpg')
         match_face_obj = MatchFace.objects.create(user=user, recorded_image=input_image_file)
-        face_result = compare_faces_for_checkin(target_image_bytes, source_image_bytes)
+        face_result = compare_faces_for_checkin(target_image_bytes, "source_image_bytes")
         
         if face_result:
             qr_data = f'{user_profile.name}-{user_profile.mobile_number}'
