@@ -4,13 +4,12 @@ import { Camera } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { axiosInstance } from '../axiosInstance';
 
 function CameraPage(){
     const [hasPermission, setHasPermission] = useState(null);
-    const [type, setType] = useState(Camera.Constants.Type.back);
+    const [type, setType] = useState(Camera.Constants.Type.front);
     const [camera, setCamera] = useState(null);
-    const [isRecording, setIsRecording] = useState(false);
-    const [flashMode, setFlashMode] = useState('off');
     const [zoom, setZoom] = useState(0);
 
     const navigation = useNavigation();
@@ -25,19 +24,29 @@ function CameraPage(){
     const takePhoto = async () => {
         if (camera) {
             const data = await camera.takePictureAsync({ base64: true });
-            console.log(data);
-        }
-    }
+            console.log(data.base64);
 
-    const toggleFlashMode = () => {
-        flashMode === 'torch' ? setFlashMode('off') : setFlashMode('torch');
+            const requestOptions = {
+                method: 'post',
+                url: '/api/checkin/verify/',
+                data: { image_b64: data.base64 }
+            }
+    
+            axiosInstance(requestOptions)
+            .then((response) => { console.log(response.data); navigation.navigate('QRScreen', { url: response.data.qrcode }); })
+            .catch((error) => { console.error(error); });
+        }
     }
   
     if (hasPermission === null) {
       return <View/>;
     }
     if (hasPermission === false) {
-      return <Text>No access to camera or microphone</Text>;
+      return(
+        <View style={styles.requestSectionEmpty}>
+            <Text style={[styles.viewAllRequests, { color: '#00000088' }]}>Access to camera is required for Aadhaar CheckIn</Text>
+        </View>
+      );
     }
 
     return (
@@ -45,19 +54,15 @@ function CameraPage(){
         <TouchableOpacity style={styles.exitButton} onPress={() => navigation.goBack()}>
             <Ionicons name={'close'} size={24} color={'#FFFFFF'}/> 
         </TouchableOpacity>
-        <Camera ref={(ref) => setCamera(ref)} style={styles.camera} type={type} flashMode={flashMode} zoom={zoom}>
+        <Camera ref={(ref) => setCamera(ref)} style={styles.camera} type={type} zoom={zoom}>
         <View style={styles.sliderContainer}>
             <MultiSlider smoothSnapped trackStyle={{height: 3, borderRadius: 2}} selectedStyle={{backgroundColor: '#FFFFFF'}} unselectedStyle={{backgroundColor: '#FFFFFF44'}} customMarker={() => { return <View style={styles.marker}/> }} onValuesChange={(values) => setZoom(values[0]/10)}/>
         </View>
-        <View style={styles.faceArea}/>
         <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={() => takePhoto()}>
                 <Ionicons name={'camera'} size={32} color={'#FFFFFF'}/> 
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => toggleFlashMode()}>
-                <Ionicons name={ flashMode === 'torch' ? 'flashlight' : 'flashlight-outline'} size={32} color={'#FFFFFF'}/> 
-            </TouchableOpacity>
-            </View>
+        </View>
         </Camera>
         </View>
     );
@@ -79,7 +84,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         flexDirection: 'row',
         margin: 20,
-        justifyContent: 'space-between'
+        justifyContent: 'center'
     },
 
     sliderContainer: {
@@ -101,10 +106,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'flex-end',
         alignItems: 'center',
-        backgroundColor: '#00000066',
+        backgroundColor: '#000000AA',
         borderRadius: 32,
-        padding: 8,
-        margin: 16
+        padding: 16,
+        width: 64,
+        height: 64,
     },
 
     exitButton: {
@@ -123,5 +129,23 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 18,
         color: 'white',
+    },
+
+    requestSectionEmpty: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+    },
+
+    viewAllRequests: {
+        fontSize: 16,
+        fontFamily: 'Sora_600SemiBold',
+
+        color: '#0245CB',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+
+        marginBottom: 16,
+        marginTop: 12
     },
 });

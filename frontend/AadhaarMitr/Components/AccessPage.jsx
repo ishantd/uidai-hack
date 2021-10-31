@@ -49,7 +49,7 @@ function AddressScreen(props) {
         const timerInterval = setInterval(() => {
             if (resendTimer > 1 && resendText !== "Resend OTP") {
                 resendTimer--;
-                setResendText(`Resend OTP (${resendTimer} Seconds)`);
+                setResendText(`Please Wait`);
             }
             else {
                 setResendText("Resend OTP");
@@ -69,7 +69,7 @@ function AddressScreen(props) {
 
         axiosInstance(requestOptions)
         .then((response) => {
-            setResendText(`Resend OTP (${resendTimer} Seconds)`);
+            setResendText(`Please Wait`);
             resendTimer = 60;
             setResendTrigger(!resendTrigger);
             setTxnId(response.data.txnId);
@@ -137,7 +137,7 @@ function AddressScreen(props) {
 
         axiosInstance(requestOptions)
         .then((response) => {
-            setResendText(`Resend OTP (${resendTimer} Seconds)`);
+            setResendText(`Please Wait`);
             resendTimer = 60;
             setResendTrigger(!resendTrigger);
             setTxnId(response.data.txnId);
@@ -147,7 +147,7 @@ function AddressScreen(props) {
 
     return(
         <React.Fragment>
-            <ScrollView style={styles.page}>
+            <ScrollView contentContainerStyle={styles.page}>
                 <Text style={styles.heading}>Modify Address</Text>
                 <Ionicons name={'return-down-back'} style={{marginLeft: 'auto', marginRight: 24}} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.subheading}>{'You can make minor edits to your address if required.'}</Text>
@@ -222,7 +222,6 @@ export { AddressScreen };
 
 const styles = StyleSheet.create({
     page: {
-        minHeight: Dimensions.get('window').height,
         backgroundColor: '#FFFFFF',
         paddingTop: 48,
     },

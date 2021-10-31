@@ -25,7 +25,7 @@ function PasscodeOTPScreen(props) {
         const timerInterval = setInterval(() => {
             if (resendTimer > 1 && resendText !== "Resend OTP") {
                 resendTimer--;
-                setResendText(`Resend OTP (${resendTimer} Seconds)`);
+                setResendText(`Please Wait`);
             }
             else {
                 setResendText("Resend OTP");
@@ -45,7 +45,7 @@ function PasscodeOTPScreen(props) {
 
         axiosInstance(requestOptions)
         .then((response) => {
-            setResendText(`Resend OTP (${resendTimer} Seconds)`);
+            setResendText(`Please Wait`);
             resendTimer = 60;
             setResendTrigger(!resendTrigger);
             setTransactionId(response.data.data.txnId);
