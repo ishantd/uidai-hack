@@ -11,7 +11,7 @@ function RequestAccepted(props) {
     return (
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'https://aadhaarmitr.tech' + props.url }}/>
+                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -21,6 +21,26 @@ function RequestAccepted(props) {
                 <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8 }]} onPress={() => props.accessAddress()}>
                     <Ionicons name={'lock-closed'} size={24} color={'#FFFFFF'}/>
                     <Text style={styles.requestButtonText}>{'Access Address'}</Text> 
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+}
+
+function RequestCompleted(props) {
+    return (
+        <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136, borderColor: '#3AA76D' }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.url }}/>
+                <View style={styles.requestText}>
+                    <Text style={styles.requestTitle}>{props.name}</Text>
+                    <Text style={styles.requestSubtitle}>{props.phone}</Text>
+                </View>
+            </View>
+            <View style={styles.requestButtons}>
+                <TouchableOpacity activeOpacity={0.9} style={[styles.requestButton, { borderBottomLeftRadius: 8, backgroundColor: '#3AA76D' }]} onPress={() => props.accessAddress()}>
+                    <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/>
+                    <Text style={styles.requestButtonText}>{'Accessing Address'}</Text> 
                 </TouchableOpacity>
             </View>
         </View>
@@ -47,7 +67,7 @@ function RequestOutgoing(props) {
 
     return (
         <Animatable.View style={styles.requestBox} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
-            <Image style={styles.requestIcon} source={{ uri: 'https://aadhaarmitr.tech' + props.url }}/>
+            <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.url }}/>
             <View style={styles.requestText}>
                 <Text style={styles.requestTitle}>{props.name}</Text>
                 <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -111,7 +131,7 @@ function RequestIncoming(props) {
     return (
         <Animatable.View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center', height: 136 }]} animation={viewAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'https://aadhaarmitr.tech' + props.url }}/>
+                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.url }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -218,7 +238,7 @@ function OutboundboundRequestScreen(props) {
         <React.Fragment>
             <ScrollView style={styles.page}>
                 <View style={styles.requestSection}>
-                    { outboundRequests.map((request, index) => request.request_approved ? <RequestAccepted key={index} name={request.name} phone={request.phone} url={request.photo} accessAddress={() => { setSelectedRequest(request.id); setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }} {...request}/> : request.name !== null ? <RequestOutgoing key={index} name={request.name} phone={request.phone} url={request.photo} {...request}/> : <RequestOutgoingNoUser key={index} phone={request.phone} {...request}/> ) }
+                    { outboundRequests.map((request, index) => request.request_approved ? request.request_completed_by_tenant ? <RequestCompleted key={index} name={request.name} phone={request.phone} url={request.photo}/> : <RequestAccepted key={index} name={request.name} phone={request.phone} url={request.photo} accessAddress={() => { setSelectedRequest(request.id); setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }} {...request}/> : request.name !== null ? <RequestOutgoing key={index} name={request.name} phone={request.phone} url={request.photo} {...request}/> : <RequestOutgoingNoUser key={index} phone={request.phone} {...request}/> ) }
                 </View>
             </ScrollView>
             {

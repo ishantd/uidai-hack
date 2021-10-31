@@ -110,6 +110,7 @@ function LoginScreen(props) {
         axiosUnauthorizedInstance(requestOptions)
         .then((response) => {
             console.log(response.data);
+            setAadhaar("");
             navigation.navigate("OTPScreen", { aadhaar: aadhaar, data: response.data });
             setProcessingRequest(false);
         })
