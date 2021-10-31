@@ -54,7 +54,7 @@ class SendOTPforEkyc(APIView):
         ekyc = EkycOffline()
         
         data_from_api = ekyc.generate_otp(uid, captchaTxnId, captchaValue)
-        
+        print(data_from_api)
         otp_object = OTP.objects.create(txn_id=data_from_api["txnId"])
         
         # TODO: create otp object here

@@ -1,7 +1,48 @@
 {% extends 'web/base.html' %}
 
-{% block content %}
-    <div class="container h-100" style="background-color: black;">
+{% load static %}
 
+{% block content %}
+    <div class="container" style="height: 100vh;">
+        <div class="row h-100 justify-content-center align-items-center" id="one">
+            <form class="col-6" id="send-otp" action="{% url 'accounts:ekyc-send-otp' %}" method="POST">
+                <div class="form-group">
+                    <label for="uid">Aadhaar UID</label>
+                    <input type="text" name="uid" class="form-control" id="uid" placeholder="xxxx-xxxx-xxxx">
+                </div>
+                <div class="input-group mb-3">
+                <div class="col-9" style="padding-left: 0;">
+                    <input type="text" name="captchaValue" id="captchaValue" class="form-control" placeholder="Captcha">
+                </div>
+                <div class="col-1">
+                    <button type="button" class="btn btn-primary" id="refresh-c">R</button>
+                </div>
+                <div class="col-2">
+                    <div id="cid">
+
+                    </div>
+                </div>
+                </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+            </form>   
+        </div>
+        <div class="row h-100 justify-content-center align-items-center" id="two" style="display: none;">
+            <form class="col-6" id="verify-otp" action="{% url 'accounts:ekyc-get-data' %}" method="POST">
+                <div class="form-group">
+                    <label for="otp">OTP</label>
+                    <input type="number" name="otp" class="form-control" id="otp" placeholder="xxxx-xxxx-xxxx">
+                </div>
+                <div class="form-group">
+                    <label for="passcode">Passcode</label>
+                    <input type="text" name="passcode" id="passcode" class="form-control" placeholder="Captcha">
+                </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+            </form>   
+        </div>
     </div>
 {% endblock content %}
+
+{% block my_js %}
+<script src="{% static 'web/js/main.js' %}"></script>
+{% endblock my_js %}
