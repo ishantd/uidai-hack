@@ -5,6 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { RequestIncoming, RequestOutgoing } from './RequestPages';
 import * as Animatable from 'react-native-animatable';
 import { axiosInstance } from '../axiosInstance';
+import * as SecureStore from 'expo-secure-store';
+
+async function clear(key) {
+    await SecureStore.deleteItemAsync(key);
+}
 
 function HomePage(props) {
     const [showBottomDrawer, setShowBottomDrawer] = useState(false);
@@ -79,7 +84,7 @@ function HomePage(props) {
         <React.Fragment>
         <ScrollView style={styles.page} contentContainerStyle={styles.pageContainer}>
             <View style={styles.userBox}>
-                <Image style={styles.userIcon} source={{ uri: 'https://aadhaarmitr.tech' + userData.img_url }}/>
+                <Image style={styles.userIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + userData.img_url }}/>
                 <View style={styles.userText}>
                     <Text style={styles.userTitle}>{userData.name}</Text>
                     <Text style={styles.userSubSubtitle}>{userData.mobile_number}</Text>
@@ -96,11 +101,15 @@ function HomePage(props) {
             <Text style={styles.titleText}>{'Aadhaar Services'}</Text>
             <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }}>
                 <Ionicons name={'location'} size={24} color={'#FFFFFF'}/> 
-                <Text style={styles.buttonText}>{'Request Address From Landlord'}</Text>
+                <Text style={styles.buttonText}>{'Request Address'}</Text>
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("AddressSharingScreen") }}>
                 <Ionicons name={'person'} size={24} color={'#FFFFFF'}/> 
-                <Text style={styles.buttonText}>{'Accounts Linked To My Address'}</Text>
+                <Text style={styles.buttonText}>{'Accounts Linked'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.8} style={[styles.button, { backgroundColor: '#0245CB', marginTop: 64, }]} onPress={() => { clear('token'); navigation.navigate("LoginScreen"); }}>
+                <Ionicons name={'log-out'} size={24} color={'#FFFFFF'}/> 
+                <Text style={styles.buttonText}>{'Log Out'}</Text>
             </TouchableOpacity>
         </ScrollView>
         {

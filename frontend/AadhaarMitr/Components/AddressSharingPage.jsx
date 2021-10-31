@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
-import { axiosUnauthorizedInstance } from '../axiosInstance';
+import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
+import { axiosInstance } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
@@ -8,11 +8,21 @@ import * as Animatable from 'react-native-animatable';
 function RequestAccepted(props) {
     const [expanded, setExpanded] = useState(false);
 
+    const [addressLine1, setAddressLine1] = useState();
+    const [addressLine2, setAddressLine2] = useState();
+    const [addressLine3, setAddressLine3] = useState();
+
+    useEffect(() => {
+        setAddressLine1(props.address['@house'] + ' ' + props.address['@street'] + ' ' + ( props.address['@landmark'].length > 0 ? 'Near ' + props.address['@landmark'] : null ));
+        setAddressLine2(props.address['@subdist'] + ' ' + props.address['@dist'] + ' ' + props.address['@vtc']);
+        setAddressLine3(props.address['@pc'] + ' ' + props.address['@state'] + ' ' + props.address['@country']);
+    }, []);
+
     return (
         !expanded ?
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center' }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <View style={styles.requestIcon}/>
+            <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.photo }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -27,14 +37,14 @@ function RequestAccepted(props) {
         </View> : 
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center' }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <View style={styles.requestIcon}/>
+                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'https://aadhaarmitr.tech'*/ + props.photo }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
                     <View style={{ marginVertical: 12 }}>
-                        <Text style={styles.requestAddress}>{'F 53 Road No. 2 Andrews Ganj'}</Text>
-                        <Text style={styles.requestAddress}>{'New Delhi, Delhi, India'}</Text>
-                        <Text style={styles.requestAddress}>{'Near Ansal Plaza, 110049'}</Text>
+                        <Text style={styles.requestAddress}>{addressLine1}</Text>
+                        <Text style={styles.requestAddress}>{addressLine2}</Text>
+                        <Text style={styles.requestAddress}>{addressLine3}</Text>
                     </View>
                 </View>
             </View>
@@ -49,11 +59,34 @@ function RequestAccepted(props) {
 }
 
 function AddressSharingScreen(props) {
+    const [accounts, setAccounts] = useState();
+
+    useEffect(() => {
+        const requestOptions = {
+            method: 'get',
+            url: '/api/accounts/linked/',
+        }
+
+        axiosInstance(requestOptions)
+        .then((response) => { console.log(response); setAccounts(response.data.data); })
+        .catch((error) => { console.error(error); });
+    }, []);
+
     return (
+        accounts ? 
         <View style={styles.page}>
-            <View style={styles.requestSectionEmpty}>
-                <Text style={[styles.viewAllRequests, { color: '#00000088' }]}>No Accounts Linked To Your Address</Text>
-            </View>
+            {
+                accounts.length > 0 ? 
+                <View style={styles.requestSection}>
+                    { accounts.map((account, index) => <RequestAccepted key={index} {...account}/>) }
+                </View> :
+                <View style={styles.requestSectionEmpty}>
+                    <Text style={[styles.viewAllRequests, { color: '#00000088' }]}>No Accounts Linked To Your Address</Text>
+                </View>
+            }
+        </View> : 
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+            <ActivityIndicator size={'large'} color={'#000000'}/>
         </View>
     );
 }

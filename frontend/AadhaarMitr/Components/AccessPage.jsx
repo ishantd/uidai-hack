@@ -27,7 +27,7 @@ function AddressScreen(props) {
     const [resendTrigger, setResendTrigger] = useState(false);
     let resendTimer = 60;
 
-    const [careOf, setCareOf] = useState(props.route.params.data['@careof']);
+    const [careOf, setCareOf] = useState('');
     const [house, setHouse] = useState(props.route.params.data['@house']);
     const [street, setStreet] = useState(props.route.params.data['@street']);
     const [landmark, setLandmark] = useState(props.route.params.data['@landmark']);
