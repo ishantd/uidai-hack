@@ -111,7 +111,6 @@ class FastKYCSendOtp(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         uid = request.data.get('uid', False)
-        
         ekyc = FastKyc()
         txnId = str(uuid.uuid4())
         otp_response = ekyc.generate_otp(uid, txnId)
