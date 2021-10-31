@@ -12,6 +12,7 @@ from checkin.models import MatchFace
 from checkin.utils import compare_faces_for_checkin
 
 import base64
+import qrcode
 import os
 
 class MatchFaces(APIView):
@@ -42,5 +43,6 @@ class GenerateEncryptedQRCode(APIView):
     def post(self, request, *args, **kwargs):
         
         user = request.user
-        
+        profile = UserProfile.objects.get(user=user)
+        # qr_data = f'{profile.name}-{profile.mobile_number}-{}'
         return JsonResponse({"status": "success"}, status=200)
