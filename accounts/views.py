@@ -237,14 +237,14 @@ class LinkedAccounts(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         profile = UserProfile.objects.get(user=user)
-        requests_landlord = TenantRequestToLandlord.objects.filter(requests_to=profile, request_completed_by_tenant=True)
+        requests_landlord = TenantRequestToLandlord.objects.filter(request_to=profile, request_completed_by_tenant=True)
         linked_data = []
         for r in requests_landlord:
             ura = UserRentedAddress.objects.get(request_id=r)
             data = {
-                "name": r.request_to.name if r.request_to else r.request_to_mobile,
-                "phone": r.request_to_mobile,
-                "photo": r.request_to.photo.url if r.request_to else None,
+                "name": r.request_from.name,
+                "phone": r.request_from.mobile_number,
+                "photo": r.request_from.photo.url if r.request_from else None,
                 "address": ura.rented_address.address_object
             }
             linked_data.append(data)

@@ -1,3 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
+def address_request(request):
+    context = {}
+    return render(request, 'web/request.html', context)

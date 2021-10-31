@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'accounts',
     'authentication',
     'address',
+    'web',
 ]
 
 MIDDLEWARE = [

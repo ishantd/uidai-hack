@@ -9,5 +9,5 @@ urlpatterns = [
     path('landlord-approves-request/', views.ChangeAddressRequestStatus.as_view(), name='landlord-approves-request'),
     path('cancel-request/', views.CancelRequest.as_view(), name='cancel-request'),
     path('enter-passcode-and-get-address/', views.EnterPincodeAndGetAddress.as_view(), name='enter-passcode-and-get-address'),
-    path('request-completed/', views.RequestApprovedAndSaveAddress.as_view(), name='request-completed')
+    path('request-completed/', views.RequestApprovedAndSaveAddress.as_view(), name='request-completed'),
 ]
