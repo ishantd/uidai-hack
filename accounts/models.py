@@ -4,6 +4,11 @@ from django.db.models.signals import post_save
 from django.core.validators import RegexValidator
 
 
+class UserDevice(models.Model):
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='device')
+    device_id = models.CharField(max_length=500, null=True, blank=True)
+    arn = models.CharField(max_length=500, null=True, blank=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
     
 class UserProfile(models.Model):
     phone_regex = RegexValidator(regex=r'^[6-9]\d{9}$', message ="Phone number must be entered in the format: '[6,7,8,9]xxxxxxxxx'. Approx 10 digits allowed.")

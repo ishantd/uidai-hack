@@ -9,9 +9,9 @@ from rest_framework.authtoken.models import Token
 
 from authentication.models import OTP
 from accounts.ekyc import EkycOffline
-from accounts.utils import xml_to_dict
-from accounts.models import UserKYC, UserProfile
+from accounts.utils import xml_to_dict, create_sns_endpoint
 from accounts.new_ekyc import EkycOffline as FastKyc
+from accounts.models import UserKYC, UserProfile, UserDevice
 from address.models import TenantRequestToLandlord, Address, State, District, UserRentedAddress
 
 import pytz
@@ -251,3 +251,20 @@ class LinkedAccounts(APIView):
             }
             linked_data.append(data)
         return JsonResponse({"status": "success", "data": linked_data}, status=200)
+    
+
+class NotificationEndpoint(APIView):
+  
+  def post(self, request, *args, **kwargs):
+    
+    device_id = request.data.get('device_id', False)
+    user = request.user
+    user_device, user_device_created = UserDevice.objects.get_or_create(user=user, device_id=device_id)
+    if user_device_created:
+      arn = create_sns_endpoint(device_id)
+      endpoint_arn = arn['EndpointArn']
+      user_device.arn = endpoint_arn
+      user_device.user = user
+      user_device.save()
+      
+    return JsonResponse({'status': 'ok', 'user_data': model_to_dict(user_device)}, status=201 if user_device_created else 200)
