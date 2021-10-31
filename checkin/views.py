@@ -38,9 +38,9 @@ class MatchFaces(APIView):
         user = request.user
         
         image = request.data.get('image_b64', False)
-        target_image_bytes = image.encode('ascii')
         if not image:
             return JsonResponse({"status": "Please send image"}, status=400)
+        target_image_bytes = image.encode('ascii')
         
         user_profile = UserProfile.objects.get(user=user)
         user_profile_image = user_profile.photo.url
