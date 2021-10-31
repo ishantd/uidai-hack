@@ -27,5 +27,5 @@ def send_message_using_sns(mobile, message):
             )
         return True
     except Exception as e:
-        print(e)
+        print(e, "**************")
         return False
