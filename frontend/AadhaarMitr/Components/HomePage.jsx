@@ -108,13 +108,13 @@ function HomePage(props) {
             <React.Fragment>
                 <Animatable.View style={styles.cardBackground} animation={backgroundAnimation} duration={250} easing={'ease-out-quad'} useNativeDriver={true}/>
                 <Animatable.View style={styles.card} animation={pageAnimation} duration={400} easing={'ease-out-quad'} useNativeDriver={true} onAnimationEnd={() => { if (closing) setShowBottomDrawer(false); }}>
-                    <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); }}>
+                    <TouchableOpacity activeOpacity={0.6} style={styles.closeIcon} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setLandlordNumber(); }}>
                         <Ionicons name={'close'} size={24} color={'#000000'}/>
                     </TouchableOpacity>
                     <Text style={styles.cardTitle}>{'Request Address From Landlord'}</Text>
                     <Text style={styles.cardSubtitle}>{'Enter your Landlord\'s Phone Number to request their address.'}</Text>
                     <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={10} style={styles.inputBox} placeholder={"Phone Number"} value={landlordNumber} onChangeText={(text) => setLandlordNumber(text)}/>
-                    <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); sendLandlordRequest(); }}>
+                    <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); sendLandlordRequest(); setLandlordNumber(); }}>
                         <Ionicons name={'paper-plane'} size={24} color={'#FFFFFF'}/> 
                         <Text style={styles.buttonText}>{'Request Address'}</Text>
                     </TouchableOpacity>
