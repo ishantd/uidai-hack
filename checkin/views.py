@@ -1,19 +1,37 @@
+import io
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.conf import settings
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 from accounts.models import UserProfile
-from checkin.models import MatchFace
+from checkin.models import EncryptedQRCode, MatchFace
 from checkin.utils import compare_faces_for_checkin
 
 import base64
 import qrcode
 import os
+import qrcode
+
+def generate_qr(data):
+    qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+    buf = io.BytesIO()
+    return buf.getvalue()
 
 class MatchFaces(APIView):
     
@@ -21,21 +39,24 @@ class MatchFaces(APIView):
         user = request.user
         
         image = request.data.get('image_b64', False)
-        target_image_bytes = image.encode('ascii')
         if not image:
             return JsonResponse({"status": "Please send image"}, status=400)
+        target_image_bytes = image.encode('ascii')
         
         user_profile = UserProfile.objects.get(user=user)
         user_profile_image = user_profile.photo.url
         
-        with open(os.path.join(settings.BASE_DIR, user_profile_image), "rb") as image_file:
-            source_image_bytes = base64.b64encode(image_file.read())
+        # with open(os.path.join(settings.BASE_DIR, user_profile_image), "rb") as image_file:
+        #     source_image_bytes = base64.b64encode(image_file.read())
         input_image_file = ContentFile(base64.b64decode(image), name=f'{user.username}.jpg')
         match_face_obj = MatchFace.objects.create(user=user, recorded_image=input_image_file)
-        face_result = compare_faces_for_checkin(target_image_bytes, source_image_bytes)
+        face_result = compare_faces_for_checkin(target_image_bytes, "source_image_bytes")
         
         if face_result:
-            return JsonResponse({"status": "success"}, status=200)
+            qr_data = f'{user_profile.name}-{user_profile.mobile_number}'
+            data = urlsafe_base64_encode(force_bytes(qr_data))
+            eqr = EncryptedQRCode.objects.create(user=user, image=generate_qr(data))
+            return JsonResponse({"status": "success", "qrcode": eqr.image.url}, status=200)
         return JsonResponse({"status": "not match"}, status=400)
 
 class GenerateEncryptedQRCode(APIView):
@@ -44,5 +65,5 @@ class GenerateEncryptedQRCode(APIView):
         
         user = request.user
         profile = UserProfile.objects.get(user=user)
-        # qr_data = f'{profile.name}-{profile.mobile_number}-{}'
+        
         return JsonResponse({"status": "success"}, status=200)

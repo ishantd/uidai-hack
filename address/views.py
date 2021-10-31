@@ -97,7 +97,7 @@ class RequestToLandlord(APIView):
             send_sms = send_message_using_sns(mobileNumber, request_sms)
         
         if user:
-            user_device = UserDevice.objects.filter(user=user).last()
+            user_device = UserDevice.objects.filter(user=user.user).last()
             t = trigger_single_notification(user_device.arn, "Request Received", f'{tenant_request.request_from.name} has sent you a request for address approval. Please respond.')
         return JsonResponse({"status": "ok", "data": model_to_dict(tenant_request)}, status=200)
 
