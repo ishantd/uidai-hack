@@ -72,7 +72,7 @@ class SendOTPforEkyc(APIView):
 
 
 class GetEKYC(APIView):
-    
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         request_id = request.data.get('request_id', False)
         uid = request.data.get('uid', False) 
@@ -87,9 +87,13 @@ class GetEKYC(APIView):
         ekyc = EkycOffline()
         
         # verify otp object here
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None
         
         data_from_api = ekyc.get_ekyc(uid, otp, txnId, share_code)
-        otp_object = OTP.objects.get(txnId=txnId)
+        otp_object = OTP.objects.get(txn_id=txnId)
         if data_from_api['status'] == 'Success':
             otp_object.verified = True
             otp_object.verified_timestamp = datetime.now(tz) 
@@ -98,7 +102,7 @@ class GetEKYC(APIView):
             b64_string = data_from_api['eKycXML']
             b64_file = ContentFile(base64.b64decode(b64_string), name=data_from_api["fileName"])
             user_kyc, user_kyc_created = UserKYC.objects.get_or_create(
-                user=request.user,
+                user=user,
                 file_name=data_from_api["fileName"],
                 datafile=b64_file
             )

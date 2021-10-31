@@ -1,4 +1,6 @@
 window.captcha_txn_id = ""
+window.otp_txn_id = ""
+window.uid = ""
 
 function change_capthca_image(b64data) {
     var image = new Image();
@@ -37,6 +39,8 @@ $("#send-otp").submit(function (e) {
         data: json_data,
         success: function (response) {
             console.log(response);
+            window.otp_txn_id = response["data"]["txnId"];
+            window.uid = $("#uid").val();
             $("#one").remove();
             $("#two").show();
         }
@@ -44,13 +48,15 @@ $("#send-otp").submit(function (e) {
     return false;
 });
 
-$("#send-otp").submit(function (e) {
+$("#verify-otp").submit(function (e) {
     e.preventDefault();
     var form = $(this);
     var data = {
-        "uid": $("#uid").val(),
-        "captchaValue": $("#captchaValue").val(),
-        "captchaTxnId": window.captcha_txn_id
+        "uid": window.uid,
+        "txnId": window.otp_txn_id,
+        "otp": $("#otp").val(),
+        "shareCode": $("#passcode").val(),
+        "request_id": $("#rid").val()
     }
     var json_data = JSON.stringify(data);
     $.ajax({
@@ -59,8 +65,9 @@ $("#send-otp").submit(function (e) {
         contentType: 'application/json',
         data: json_data,
         success: function (response) {
-            $("#one").remove();
-            $("#two").show();
+            console.log(response);
+            $("#two").remove();
+            $("#three").show();
         }
     });
     return false;
