@@ -115,11 +115,6 @@ class GetEKYC(APIView):
             request_obj.kyc = user_kyc
             request_obj.save()
             # record ekyc transaction and file location
-
-            if web:
-                request_obj.request_approved = True
-                request_obj.request_approved_timestamp = datetime.now(tz)
-            request_obj.save()
             
             return JsonResponse({"status": "okay"}, status=200)
 

@@ -36,22 +36,6 @@ def create_expiry_for_request(sender, instance, created, **kwargs):
         instance.expires_after = instance.created_on + timedelta(days=7)
         instance.save()
 
-def notification(sender, instance, created, **kwargs):
-    if created:
-        if instance.request_to:
-            user_device = UserDevice.objects.filter(user=instance.request_to.user).last()
-            trigger_single_notification(user_device.arn, "Request Received", f'{user_device.request_from.name} has sent you a request for address approval. Please respond.')
-    if not created:
-        if instance.request_approved:
-            user_device = UserDevice.objects.filter(user=instance.request_from.user).last()
-            trigger_single_notification(user_device.arn, "Request Approved", f'{user_device.request_to.name} has approved your request for address share. Please verify.')
-        if instance.request_declined:
-            user_device = UserDevice.objects.filter(user=instance.request_from.user).last()
-            trigger_single_notification(user_device.arn, "Request Declined", f'{user_device.request_to.name} has declined your request for address share')
-        if instance.request_completed_by_tenant:
-            if instance.request_to:
-                user_device = UserDevice.objects.filter(user=instance.request_to.user).last()
-                trigger_single_notification(user_device.arn, "Address Share Completed", f'{user_device.request_from.name} has completed the procedure for address share')
 post_save.connect(create_expiry_for_request, sender=TenantRequestToLandlord)
 
 class State(models.Model):

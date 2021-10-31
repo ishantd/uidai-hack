@@ -116,9 +116,13 @@ class ChangeAddressRequestStatus(APIView):
         if requestStatus and requestStatus == 'accept':
             tenant_request.request_approved = True
             tenant_request.request_approved_timestamp = datetime.now(tz)
+            user_device = UserDevice.objects.filter(user=tenant_request.request_from.user).last()
+            trigger_single_notification(user_device.arn, "Request Approved", f'{user_device.request_to.name} has approved your request for address share. Please verify.')
         elif requestStatus and requestStatus == 'decline':
             tenant_request.request_declined = True
             tenant_request.request_declined_timestamp = datetime.now(tz)
+            user_device = UserDevice.objects.filter(user=tenant_request.request_from.user).last()
+            trigger_single_notification(user_device.arn, "Request Declined", f'{user_device.request_to.name} has declined your request for address share')
         
         tenant_request.save()
 
@@ -193,5 +197,9 @@ class RequestApprovedAndSaveAddress(APIView):
         user_rented_address = UserRentedAddress.objects.get(request_id=requestId)
         user_rented_address.rented_address = new_address_obj
         user_rented_address.save()
+        
+        if tenant_request.request_to:
+            user_device = UserDevice.objects.filter(user=tenant_request.request_to.user).last()
+            trigger_single_notification(user_device.arn, "Address Share Completed", f'{user_device.request_from.name} has completed the procedure for address share')
         
         return JsonResponse({"status": "success: request "}, status=200)
