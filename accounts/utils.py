@@ -20,9 +20,8 @@ def compare_two_geocodes(original, new):
     new_geocode_result = gmaps.geocode(new)
     original_location = original_geocode_result[0]["geometry"]["location"]
     new_location = new_geocode_result[0]["geometry"]["location"]
-    
-    distance = int(haversine(patient_location, hcc_location))
-    return original_location, new_location
+    distance = int(haversine(original_location, new_location))
+    return distance
 
 def create_sns_endpoint(device_id):
 

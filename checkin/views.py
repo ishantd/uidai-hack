@@ -54,7 +54,7 @@ class MatchFaces(APIView):
         if face_result:
             qr_data = f'{user_profile.name}-{user_profile.mobile_number}'
             data = urlsafe_base64_encode(force_bytes(qr_data))
-            eqr = EncryptedQRCode.objects.create(user=user, image=data)
+            eqr = EncryptedQRCode.objects.create(user=user, image=generate_qr(data))
             return JsonResponse({"status": "success", "qrcode": eqr.image.url}, status=200)
         return JsonResponse({"status": "not match"}, status=400)
 
