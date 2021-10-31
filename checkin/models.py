@@ -10,7 +10,7 @@ class MatchFace(models.Model):
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
 
 class EncryptedQRCode(models.Model):
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='faces_request')
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='qr')
     image = models.ImageField(upload_to='qr/', null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)

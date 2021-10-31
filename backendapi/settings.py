@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'authentication',
     'address',
     'web',
+    'checkin'
 ]
 
 MIDDLEWARE = [

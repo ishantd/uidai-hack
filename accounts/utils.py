@@ -3,6 +3,7 @@ import boto3
 import xmltodict
 import googlemaps
 from datetime import datetime
+from haversine import haversine, Unit
 
 from django.conf import settings
 
@@ -17,7 +18,10 @@ def compare_two_geocodes(original, new):
     gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
     original_geocode_result = gmaps.geocode(original)
     new_geocode_result = gmaps.geocode(new)
-    return original_geocode_result, new_geocode_result
+    original_location = original_geocode_result[0]["geometry"]["location"]
+    new_location = new_geocode_result[0]["geometry"]["location"]
+    distance = int(haversine(patient_location, hcc_location))
+    return original_location, new_location
 
 def create_sns_endpoint(device_id):
 
