@@ -19,17 +19,16 @@ function populate_captcha() {
     });
 }
 
-$("#refresh-c").click(function () {
-    populate_captcha();
+$("#start-request").click(function () {
+    $("#zero").remove();
+    $("#one").css("display", "flex");
 });
 
 $("#send-otp").submit(function (e) {
     e.preventDefault();
     var form = $(this);
     var data = {
-        "uid": $("#uid").val(),
-        "captchaValue": $("#captchaValue").val(),
-        "captchaTxnId": window.captcha_txn_id
+        "uid": $("#uid").val()
     }
     var json_data = JSON.stringify(data);
     $.ajax({
@@ -42,7 +41,7 @@ $("#send-otp").submit(function (e) {
             window.otp_txn_id = response["data"]["txnId"];
             window.uid = $("#uid").val();
             $("#one").remove();
-            $("#two").show();
+            $("#two").css("display", "flex");
         }
     });
     return false;
@@ -55,7 +54,6 @@ $("#verify-otp").submit(function (e) {
         "uid": window.uid,
         "txnId": window.otp_txn_id,
         "otp": $("#otp").val(),
-        "shareCode": $("#passcode").val(),
         "request_id": $("#rid").val(),
         "web": true
     }
@@ -68,7 +66,7 @@ $("#verify-otp").submit(function (e) {
         success: function (response) {
             console.log(response);
             $("#two").remove();
-            $("#three").show();
+            $("#three").css("display", "flex");
         }
     });
     return false;
