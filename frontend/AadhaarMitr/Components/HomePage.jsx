@@ -4,7 +4,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { RequestIncoming, RequestOutgoing } from './RequestPages';
 import * as Animatable from 'react-native-animatable';
-import { axiosInstance } from '../axiosInstance';
+import { axiosInstance, clearClientToken } from '../axiosInstance';
 import * as SecureStore from 'expo-secure-store';
 
 async function clear(key) {
@@ -107,11 +107,11 @@ function HomePage(props) {
                 <Ionicons name={'person'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Accounts Linked'}</Text>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("CameraScreen") }}>
+            {/*<TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => { navigation.navigate("CameraScreen") }}>
                 <Ionicons name={'shield-checkmark'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Aadhaar CheckIn'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.8} style={[styles.button, { backgroundColor: '#0245CB', marginTop: 64, }]} onPress={() => { clear('token'); navigation.navigate("LoginScreen"); }}>
+            </TouchableOpacity>*/}
+            <TouchableOpacity activeOpacity={0.8} style={[styles.button, { backgroundColor: '#0245CB', marginTop: 64, }]} onPress={() => { clear("token"); navigation.navigate("LoginScreen") }}>
                 <Ionicons name={'log-out'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Log Out'}</Text>
             </TouchableOpacity>

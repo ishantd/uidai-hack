@@ -7,9 +7,14 @@ import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import AadhaarLogo from '../Images/Aadhaar';
 import messaging from '@react-native-firebase/messaging';
+import Toast, { DURATION } from 'react-native-easy-toast'
 
 async function save(key, value) {
     await SecureStore.setItemAsync(key, value);
+}
+
+async function clear(key) {
+    await SecureStore.deleteItemAsync(key);
 }
 
 function OTPScreen(props) {
@@ -63,12 +68,16 @@ function OTPScreen(props) {
     const getEKYC = () => {
         setProcessingRequest(true);
 
+        delete axiosUnauthorizedInstance.defaults.headers.common['Authorization'];
+        delete axiosInstance.defaults.headers.common['Authorization'];
+        clear('token');        
+
         const requestOptions = {
             method: 'post',
             url: '/api/accounts/new-ekyc/get-ekyc/',
-            data: { uid: aadhaar, txnId: data.txnId, otp: OTP }
+            data: { uid: aadhaar, txnId: data.txnId, otp: OTP },
         }
-        axiosUnauthorizedInstance(requestOptions).then((response) => { console.log(response.data); save("token", response.data.token); setClientToken(response.data.token); }).then(() => { getAndSetMessagingToken(); }).catch((error) => { console.error(error); setProcessingRequest(false); });
+        axiosUnauthorizedInstance(requestOptions).then((response) => { save("token", response.data.token); setClientToken(response.data.token); }).then(() => { getAndSetMessagingToken(); }).catch((error) => { console.error(error, "Error in getEKYC"); setProcessingRequest(false); });
     }
 
     async function getAndSetMessagingToken() {
@@ -80,10 +89,10 @@ function OTPScreen(props) {
             url: '/api/accounts/new-device/',
             data: { device_id: token }
         }
-
+        
         axiosInstance(requestOptions)
-        .then((response) => { console.log(response); navigation.navigate("HomeScreen"); })
-        .catch((error) => { console.error(error); });
+        .then((response) => { navigation.navigate("HomeScreen"); })
+        .catch((error) => { console.error(error, "Error in set token"); });
     }
 
     return (
@@ -111,6 +120,7 @@ function LoginScreen(props) {
     const [aadhaar, setAadhaar] = useState("");
 
     const navigation = useNavigation();
+    const toastRef = useRef(null);
 
     const [processingRequest, setProcessingRequest] = useState(false);
 
@@ -153,6 +163,7 @@ function LoginScreen(props) {
                     </React.Fragment>
                 }
             </TouchableOpacity>
+            <Toast ref={(toast) => toastRef.current = toast} style={{ backgroundColor: '#EE3B4E' }} textStyle={{ fontSize: 16, fontFamily: 'Roboto_400Regular', color: '#FFFFFF' }}/>
         </View>
     );
 }
