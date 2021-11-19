@@ -95,6 +95,7 @@ class GetEKYC(APIView):
         
         data_from_api = ekyc.get_ekyc(uid, otp, txnId, share_code)
         otp_object = OTP.objects.get(txn_id=txnId)
+        print(data_from_api)
         if data_from_api['status'] == 'Success':
             otp_object.verified = True
             otp_object.verified_timestamp = datetime.now(tz) 
@@ -178,6 +179,7 @@ class FastKYCEKyc(APIView):
         ekyc = FastKyc()
         otp_response = ekyc.get_ekyc(uid, txnId, otp)
         otp_object = OTP.objects.get(txn_id=txnId)
+        print(otp_response)
         if otp_response['status'] == 'y' or otp_response['status'] == 'Y':
             otp_object.verified = True
             otp_object.verified_timestamp = datetime.now(tz) 
@@ -206,9 +208,11 @@ class FastKYCEKyc(APIView):
             kyc, kyc_created = UserKYC.objects.get_or_create(user=user, xml_raw_data=otp_response["eKycString"])
 
             return JsonResponse({"status": "okay", "token": user_token.key}, status=200)
-
-        if otp_response['errCode']:
-            return JsonResponse({"status": "Failed", "data":otp_response}, status=400)
+        try:
+            if otp_response['errCode']:
+                return JsonResponse({"status": "Failed", "data":otp_response}, status=400)
+        except:
+            return JsonResponse({"status": "Unknown Error", "data":otp_response}, status=422)
         return JsonResponse({"status": "Unknown Error", "data":otp_response}, status=422)
 
 class AddressActions(APIView):

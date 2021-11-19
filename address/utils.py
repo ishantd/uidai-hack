@@ -6,7 +6,7 @@ import boto3
 
 def create_request_sms(sender, mobile_number, pk, current_site, expiry):
     url_b64_endpoint = urlsafe_base64_encode(force_bytes(f'{mobile_number}-{pk}'))
-    final_url = f'http://{current_site.domain}/web/address-request/{url_b64_endpoint}/'
+    final_url = f'http://{current_site.domain}/web/address-request/?uid={url_b64_endpoint}/'
     
     message = f'{sender} has requested access to your address. Please visit: {final_url}. Expiry: {str(expiry)}'
     print(message)
