@@ -42,6 +42,19 @@ function AddressScreen(props) {
     const [processingRequest, setProcessingRequest] = useState(false);
     const [txnId, setTxnId] = useState('');
 
+    const [newAddressString, setNewAddressString] = useState('');
+    const [oldAddressString, setOldAddressString] = useState('');
+
+    useEffect(() => {
+        let oldAddrStr = '';
+        for (var key in props.route.params.data) {
+            if (props.route.params.data.hasOwnProperty(key)) {
+                newAddrStr += props.route.params.data[key] + ' , ';
+            }
+        }
+        setOldAddressString(oldAddrStr);
+    }, []);
+
     useEffect(() => {
         const timerInterval = setInterval(() => {
             if (resendTimer > 1 && resendText !== "Resend OTP") {
@@ -106,10 +119,18 @@ function AddressScreen(props) {
             '@country': country
         };
 
+        let newAddrStr = '';
+        for (var key in addressObject) {
+            if (addressObject.hasOwnProperty(key)) {
+                newAddrStr += addressObject[key] + ' , ';
+            }
+        }
+        setNewAddressString(newAddrStr);
+
         const requestOptions = {
             method: 'post',
             url: 'api/address/request-completed/',
-            data: { requestId: props.route.params.requestId, addressData: addressObject }
+            data: { requestId: props.route.params.requestId, addressData: addressObject, old: oldAddressString, new: newAddrStr }
         }
 
         axiosInstance(requestOptions)

@@ -125,6 +125,11 @@ function LoginScreen(props) {
     const [processingRequest, setProcessingRequest] = useState(false);
 
     const sendOTP = () => {
+        if (aadhaar.length !== 12) {
+            toastRef.current.show("Please enter a valid Aadhaar Number", 1500, () => {});
+            return;
+        }
+
         setProcessingRequest(true);
 
         const requestOptions = {

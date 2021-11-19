@@ -14,7 +14,7 @@ function RequestAccepted(props) {
 
     useEffect(() => {
         setAddressLine1(props.address['@house'] + ' ' + props.address['@street'] + ' ' + ( props.address['@lm'].length > 0 ? 'Near ' + props.address['@lm'] : null ));
-        setAddressLine2(props.address['@subdist'] + ' ' + props.address['@dist'] + ' ' + props.address['@vtc']);
+        setAddressLine2(props.address['@dist'] + ' ' + props.address['@vtc']);
         setAddressLine3(props.address['@pc'] + ' ' + props.address['@state'] + ' ' + props.address['@country']);
     }, []);
 
@@ -22,7 +22,7 @@ function RequestAccepted(props) {
         !expanded ?
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center' }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'http://192.168.5.163:8000'*/ + props.photo }}/>
+            <Image style={styles.requestIcon} source={{ uri: 'https://aadhaarmitr.tech' + props.photo }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>
@@ -37,7 +37,7 @@ function RequestAccepted(props) {
         </View> : 
         <View style={[styles.requestBox, { flexDirection: 'column', justifyContent: 'center' }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Image style={styles.requestIcon} source={{ uri: 'http://127.0.0.1:8000'/*'http://192.168.5.163:8000'*/ + props.photo }}/>
+                <Image style={styles.requestIcon} source={{ uri: 'https://aadhaarmitr.tech' + props.photo }}/>
                 <View style={styles.requestText}>
                     <Text style={styles.requestTitle}>{props.name}</Text>
                     <Text style={styles.requestSubtitle}>{props.phone}</Text>

@@ -84,7 +84,7 @@ function HomePage(props) {
         <React.Fragment>
         <ScrollView style={styles.page} contentContainerStyle={styles.pageContainer}>
             <View style={styles.userBox}>
-                <Image style={styles.userIcon} source={{ uri: 'http://192.168.5.163:8000' + userData.img_url }}/>
+                <Image style={styles.userIcon} source={{ uri: 'https://aadhaarmitr.tech' + userData.img_url }}/>
                 <View style={styles.userText}>
                     <Text style={styles.userTitle}>{userData.name}</Text>
                     <Text style={styles.userSubSubtitle}>{userData.mobile_number}</Text>
