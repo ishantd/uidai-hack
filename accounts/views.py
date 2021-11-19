@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 
 from authentication.models import OTP
 from accounts.ekyc import EkycOffline
-from accounts.utils import xml_to_dict, create_sns_endpoint, trigger_single_notification
+from accounts.utils import compare_two_geocodes, xml_to_dict, create_sns_endpoint, trigger_single_notification
 from accounts.new_ekyc import EkycOffline as FastKyc
 from accounts.models import UserKYC, UserProfile, UserDevice
 from address.models import TenantRequestToLandlord, Address, State, District, UserRentedAddress
@@ -236,6 +236,18 @@ class AddressActions(APIView):
         address_data = request.data.get('address_data', False)
         
         request_obj = TenantRequestToLandlord.objects.get(id=request_id)
+        
+        old = request.data.get('old', False)
+        new = request.data.get('new', False)
+        
+        try:
+        
+            distance = compare_two_geocodes(old, new)
+            
+            if distance > 5:
+                return JsonResponse({'status': 'invalid address'}, status=400)
+        except:
+            print("E")
         
         user_rented_address = UserRentedAddress.objects.get(request_id=request_obj)
 
