@@ -39,8 +39,10 @@ function PasscodeOTPScreen(props) {
 
         const requestOptions = {
             method: 'post',
-            url: '/api/accounts/ekyc/send-otp/',
+            url: '/api/accounts/ekyc/send-otp/', // NEW URL => 'api/accounts/new-ekyc/send-otp/
+            // New Data => only UID
             data: { uid: props.route.params.aadhaar, captchaTxnId: props.route.params.captchaTxnId, captchaValue: props.route.params.captcha }
+            // success if status==okay, returns txnId, aadhaar_api_response as data
         }
 
         axiosInstance(requestOptions)
@@ -56,8 +58,10 @@ function PasscodeOTPScreen(props) {
     const getEKYC = () => {
         const requestOptions = {
             method: 'post',
-            url: '/api/accounts/ekyc/get-ekyc/',
+            url: '/api/accounts/ekyc/get-ekyc/', // NEW URL => 'api/accounts/new-ekyc/get-ekyc/
+            // new data : uid, txnId, otp, request_id
             data: { request_id: props.route.params.id, uid: props.route.params.aadhaar, otp: OTP, txnId: transactionId, shareCode: passcode }
+            
         }
 
         axiosInstance(requestOptions)

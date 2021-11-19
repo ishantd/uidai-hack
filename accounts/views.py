@@ -172,6 +172,7 @@ class FastKYCEKyc(APIView):
         uid = request.data.get('uid', False)
         txnId = request.data.get('txnId', False)
         otp = request.data.get('otp', False)
+        request_id = request.data.get('request_id', False)
         print(txnId)
         if not (uid and txnId and otp):
             return JsonResponse({"status": "not enough data"}, status=400)
@@ -206,8 +207,16 @@ class FastKYCEKyc(APIView):
                 user_profile = UserProfile.objects.get(user=user)
             user_token, user_token_created = Token.objects.get_or_create(user=user)
             kyc, kyc_created = UserKYC.objects.get_or_create(user=user, xml_raw_data=otp_response["eKycString"])
-
-            return JsonResponse({"status": "okay", "token": user_token.key}, status=200)
+            if request_id:
+                request_obj = TenantRequestToLandlord.objects.get(id=request_id)
+                request_obj.request_approved_timestamp = datetime.now(tz)
+                request_obj.request_approved = True
+                request_obj.kyc = kyc
+                request_obj.save()
+                if request_obj.request_approved == True:
+                    user_device = UserDevice.objects.filter(user=request_obj.request_from.user).last()
+                    trigger_single_notification(user_device.arn, "Request Approved", f'{request_obj.request_to.name if request_obj.request_to else "User"} has approved your request for address share. Please verify.')
+            return JsonResponse({"status": "okay", "token": user_token.key if not request_id else None}, status=200)
         try:
             if otp_response['errCode']:
                 return JsonResponse({"status": "Failed", "data":otp_response}, status=400)

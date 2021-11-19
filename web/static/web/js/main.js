@@ -73,5 +73,3 @@ $("#verify-otp").submit(function (e) {
     });
     return false;
 });
-
-populate_captcha();
