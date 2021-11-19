@@ -17,3 +17,9 @@ body {
 .blue-text {
     color: #0245CB
 }
+
+.headingText{
+    font-family: 'Sora', sans-serif;
+    font-size: 10em;
+    font-weight: 600;
+}

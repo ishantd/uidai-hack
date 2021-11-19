@@ -2,47 +2,74 @@
 
 {% load static %}
 
-{% block content %}
-    <div class="container" style="height: 100vh;">
-    <input type="hidden" name="rid" id="rid" value="{{id}}">
-        <div class="row h-100 justify-content-center align-items-center" id="one">
-            <form class="col-6" id="send-otp" action="{% url 'accounts:ekyc-send-otp' %}" method="POST">
-                <div class="form-group">
-                    <label for="uid">Aadhaar UID</label>
-                    <input type="text" name="uid" class="form-control" id="uid" placeholder="xxxx-xxxx-xxxx">
-                </div>
-                <div class="input-group mb-3">
-                <div class="col-9" style="padding-left: 0;">
-                    <input type="text" name="captchaValue" id="captchaValue" class="form-control" placeholder="Captcha">
-                </div>
-                <div class="col-1">
-                    <button type="button" class="btn btn-primary" id="refresh-c">R</button>
-                </div>
-                <div class="col-2">
-                    <div id="cid">
+{% block my_css %}
+<link href="{% static 'web/css/main.css' %}">
+{% endblock my_css %}
 
+{% block content %}
+    <div>
+    <input type="hidden" name="rid" id="rid" value="{{id}}">
+        <div id="zero" style="display: flex; flex-direction: column; width: 100vw; height: 100vh; background-color: #FFFFFF; justify-content: center; align-items: center">
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #FFFFFF; border-radius: 0.25em; padding: 2em 2em; border-width: 2px; border-style: solid; border-color: #000000;">
+                <div style="width: 8em; height: 8em; align-items: center; justify-content: center; display: flex; background-color: #000000; margin-bottom: 1em; border-radius: 4em; object-fit: contain; overflow: hidden;">
+                    <img src="{% static 'web/images/aadhaar-image.png' %}" style="width: 7em; height: 7em; object-fit: contain; background-radius: 4em;"/>
+                </div>
+                <p style="font-family: 'Sora', sans-serif; font-size: 2em; font-weight: 600;">AadhaarMitr</p>
+                <div style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center; background-color: #FFFFFF; border-radius: 0.25em; padding: 0.75em 2em; width: 25vw; border-width: 2px; border-style: solid; border-color: #000000;">
+                    <div style="width: 4em; height: 4em; align-items: center; justify-content: center; display: flex; background-color: #000000; border-radius: 2em; object-fit: contain; overflow: hidden;">
+                        <img src="{{image}}" style="width: 4em; height: 4em; object-fit: contain; background-radius: 2em;"/>
+                    </div>
+                    <div style="text-align: flex-end; margin-left: 1em;">
+                        <p style="font-family: 'Sora', sans-serif; font-size: 1.25em; font-weight: 600; margin-bottom: 0">{{request_from_name}}</p>
+                        <p style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; margin-bottom: 0; letter-spacing: 3px">{{mobile}}</p>
                     </div>
                 </div>
-                </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-            </form>   
+                <form id="verify-otp" style="display: flex; flex-direction: column;" action="{% url 'accounts:ekyc-get-data' %}" method="POST">
+                    <button type="submit" id="start-request" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vw; margin: 0.5em 2em;">Accept Request</button>
+                </form>   
+            </div>
         </div>
-        <div class="row h-100 justify-content-center align-items-center" id="two" style="display: none;">
-            <form class="col-6" id="verify-otp" action="{% url 'accounts:ekyc-get-data' %}" method="POST">
-                <div class="form-group">
-                    <label for="otp">OTP</label>
-                    <input type="number" name="otp" class="form-control" id="otp" placeholder="Enter 6 digit OTP">
+        <div id="one" style="display: none; flex-direction: column; width: 100vw; height: 100vh; background-color: #FFFFFF; justify-content: center; align-items: center">
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #FFFFFF; border-radius: 0.25em; padding: 2em 2em; border-width: 2px; border-style: solid; border-color: #000000;">
+                <div style="width: 8em; height: 8em; align-items: center; justify-content: center; display: flex; background-color: #000000; margin-bottom: 1em; border-radius: 4em; object-fit: contain; overflow: hidden;">
+                    <img src="{% static 'web/images/aadhaar-image.png' %}" style="width: 7em; height: 7em; object-fit: contain; background-radius: 4em;"/>
                 </div>
-                <div class="form-group">
-                    <label for="passcode">Passcode</label>
-                    <input type="number" name="passcode" id="passcode" class="form-control" placeholder="4 digit passcode">
-                </div>
-
-                    <button type="submit" class="btn btn-primary">Submit</button>
-            </form>   
+                <p style="font-family: 'Sora', sans-serif; font-size: 2em; font-weight: 600;">AadhaarMitr</p>
+                <form id="send-otp" style="display: flex; flex-direction: column;" action="{% url 'accounts:newekyc-send-otp' %}" method="POST">
+                    <div>
+                        <input type="text" name="aadhaar" id="uid" maxlength="12" placeholder="Enter your Aadhaar Number" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vw; margin: 0.5em 2em;">
+                    </div>
+                    <button type="submit" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vw; margin: 0.5em 2em;">Proceed</button>
+                </form>   
+            </div>
         </div>
-        <div class="row h-100 justify-content-center align-items-center" id="three" style="display: none;">
-            <h1>Success</h1>
+        <div id="two" style="display: none; flex-direction: column; width: 100vw; height: 100vh; background-color: #FFFFFF; justify-content: center; align-items: center">
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #FFFFFF; border-radius: 0.25em; padding: 2em 2em; border-width: 2px; border-style: solid; border-color: #000000;">
+                <div style="width: 8em; height: 8em; align-items: center; justify-content: center; display: flex; background-color: #000000; margin-bottom: 1em; border-radius: 4em; object-fit: contain; overflow: hidden;">
+                    <img src="{% static 'web/images/aadhaar-image.png' %}" style="width: 7em; height: 7em; object-fit: contain; background-radius: 4em;"/>
+                </div>
+                <p style="font-family: 'Sora', sans-serif; font-size: 2em; font-weight: 600;">AadhaarMitr</p>
+                <form id="verify-otp" style="display: flex; flex-direction: column;" action="{% url 'accounts:newekyc-getekyc' %}" method="POST">
+                    <div>
+                        <input type="text" name="otp" id="otp" maxlength="6" placeholder="Enter OTP Recieved on your Phone" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vw; margin: 0.5em 2em;">
+                    </div>
+                    <div>
+                        <input type="text" name="passcode" id="passcode" maxlength="4" placeholder="Create a 4 digit Passcode" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vw; margin: 0.5em 2em;">
+                    </div>
+                    <button type="submit" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vw; margin: 0.5em 2em;">Grant Address Access</button>
+                </form>   
+            </div>
+        </div>
+        <div id="three" style="display: none; flex-direction: column; width: 100vw; height: 100vh; background-color: #FFFFFF; justify-content: center; align-items: center">
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #FFFFFF; border-radius: 0.25em; padding: 2em 2em; border-width: 2px; border-style: solid; border-color: #000000;">
+                <div style="width: 8em; height: 8em; align-items: center; justify-content: center; display: flex; background-color: #000000; margin-bottom: 1em; border-radius: 4em; object-fit: contain; overflow: hidden;">
+                    <img src="{% static 'web/images/aadhaar-image.png' %}" style="width: 7em; height: 7em; object-fit: contain; background-radius: 4em;"/>
+                </div>
+                <p style="font-family: 'Sora', sans-serif; font-size: 2em; font-weight: 600;">AadhaarMitr</p>
+                <div style="width: 25vw;">
+                    <p style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400;">Your request has been processed successfully. Please close this window for security reasons.</p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock content %}

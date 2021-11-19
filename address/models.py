@@ -62,10 +62,7 @@ class Address(models.Model):
     pincode = models.CharField(max_length=6, null=True, blank=True)
     
     address_object = models.JSONField(null=True, blank=True)
-    
-    
-    def __str__(self):
-        return f'{self.line_1} {self.line_2}'
+
 
 class UserRentedAddress(models.Model):
     rented_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.SET_NULL, related_name='rented')

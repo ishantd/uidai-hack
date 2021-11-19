@@ -98,6 +98,8 @@ class RequestToLandlord(APIView):
         
         if user:
             user_device = UserDevice.objects.filter(user=user.user).last()
+            request_sms = create_request_sms(tenant_request.request_from.name, mobileNumber, tenant_request.id, current_site, tenant_request.expires_after)
+            send_sms = send_message_using_sns(mobileNumber, request_sms)
             t = trigger_single_notification(user_device.arn, "Request Received", f'{tenant_request.request_from.name} has sent you a request for address approval. Please respond.')
         return JsonResponse({"status": "ok", "data": model_to_dict(tenant_request)}, status=200)
 
@@ -200,6 +202,6 @@ class RequestApprovedAndSaveAddress(APIView):
         
         if tenant_request.request_to:
             user_device = UserDevice.objects.filter(user=tenant_request.request_to.user).last()
-            trigger_single_notification(user_device.arn, "Address Share Completed", f'{user_device.request_from.name} has completed the procedure for address share')
+            trigger_single_notification(user_device.arn, "Address Share Completed", f'{tenant_request.request_from.name} has completed the procedure for address share')
         
         return JsonResponse({"status": "success: request "}, status=200)

@@ -39,8 +39,12 @@ function PasscodeOTPScreen(props) {
 
         const requestOptions = {
             method: 'post',
-            url: '/api/accounts/ekyc/send-otp/',
-            data: { uid: props.route.params.aadhaar, captchaTxnId: props.route.params.captchaTxnId, captchaValue: props.route.params.captcha }
+            //url: '/api/accounts/ekyc/send-otp/', // NEW URL => 'api/accounts/new-ekyc/send-otp/
+            url: '/api/accounts/new-ekyc/send-otp/',
+            // New Data => only UID
+            //data: { uid: props.route.params.aadhaar, captchaTxnId: props.route.params.captchaTxnId, captchaValue: props.route.params.captcha }
+            data: { uid: props.route.params.aadhaar }
+            // success if status==okay, returns txnId, aadhaar_api_response as data
         }
 
         axiosInstance(requestOptions)
@@ -56,8 +60,10 @@ function PasscodeOTPScreen(props) {
     const getEKYC = () => {
         const requestOptions = {
             method: 'post',
-            url: '/api/accounts/ekyc/get-ekyc/',
+            url: '/api/accounts/ekyc/get-ekyc/', // NEW URL => 'api/accounts/new-ekyc/get-ekyc/
+            // new data : uid, txnId, otp, request_id
             data: { request_id: props.route.params.id, uid: props.route.params.aadhaar, otp: OTP, txnId: transactionId, shareCode: passcode }
+            
         }
 
         axiosInstance(requestOptions)
@@ -106,9 +112,9 @@ function PasscodeCaptchaScreen(props) {
 
     const [processingRequest, setProcessingRequest] = useState(false);
 
-    useEffect(() => { getCaptcha() }, []);
+    /*useEffect(() => { getCaptcha() }, []);*/
 
-    const getCaptcha = () => {
+    /*const getCaptcha = () => {
         const requestOptions = {
             method: 'get',
             url: '/api/accounts/ekyc/generate-captcha/',
@@ -120,15 +126,25 @@ function PasscodeCaptchaScreen(props) {
             setCaptchaTxnId(response.data.data.captchaTxnId);
         })
         .catch((error) => console.error(error));
-    }
+    }*/
 
     const sendOTP = () => {
         setProcessingRequest(true);
 
-        const requestOptions = {
+        /*const requestOptions = {
             method: 'post',
             url: '/api/accounts/ekyc/send-otp/',
             data: { uid: aadhaar, captchaTxnId: captchaTxnId, captchaValue: captcha }
+        }*/
+
+        const requestOptions = {
+            method: 'post',
+            //url: '/api/accounts/ekyc/send-otp/', // NEW URL => 'api/accounts/new-ekyc/send-otp/
+            url: '/api/accounts/new-ekyc/send-otp/',
+            // New Data => only UID
+            //data: { uid: props.route.params.aadhaar, captchaTxnId: props.route.params.captchaTxnId, captchaValue: props.route.params.captcha }
+            data: { uid: aadhaar }
+            // success if status==okay, returns txnId, aadhaar_api_response as data
         }
 
         axiosInstance(requestOptions)
@@ -146,13 +162,13 @@ function PasscodeCaptchaScreen(props) {
             <Ionicons name={'return-down-back'} style={{marginLeft: 'auto', marginRight: 24}} size={24} color={'#FFFFFF'}/> 
             <Text style={styles.subheading}>{'Enter your Aadhaar Number to continue.'}</Text>
             <TextInput keyboardType='numeric' autoCapitalize='none' autoCorrect={false} maxLength={12} style={styles.inputBox} placeholder={"Aadhaar Number"} value={aadhaar} onChangeText={(text) => setAadhaar(text)}/>
-            <View style={styles.captcha}>
+            {/*}<View style={styles.captcha}>
                 <Image style={{ width: 180, height: 50, flex: 5, resizeMode: 'contain' }} source={{ uri: `data:image/png;base64,${captchaImage}` }}/>
                 <TouchableOpacity activeOpacity={0.9} style={styles.refreshCaptcha} onPress={() => getCaptcha()}>
                     <Ionicons name={'refresh-circle'} size={32} color={'#FFFFFF'}/> 
                 </TouchableOpacity>
             </View>
-            <TextInput autoCapitalize='none' autoCorrect={false} style={styles.inputBox} placeholder={"Captcha"} value={captcha} onChangeText={(text) => setCaptcha(text)}/>
+            <TextInput autoCapitalize='none' autoCorrect={false} style={styles.inputBox} placeholder={"Captcha"} value={captcha} onChangeText={(text) => setCaptcha(text)}/>*/}
             <Text style={[styles.resendText, { color: '#FFFFFF' }]}>Resend OTP</Text>
             <TouchableOpacity activeOpacity={0.8} style={styles.button} onPress={() => sendOTP()}>
                 {

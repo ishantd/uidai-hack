@@ -13,6 +13,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.getenv("DEBUG")=="1" else False
 SEND_MESSAGES = True if os.getenv("SEND_MESSAGES")=="1" else False
+DB_TYPE = os.getenv("DB_TYPE")
 
 
 if not DEBUG:
@@ -95,7 +96,8 @@ WSGI_APPLICATION = 'backendapi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
+if DB_TYPE == 'Production':
+    DATABASES = {
     "default": {
         "ENGINE": os.environ.get("SQL_ENGINE"),
         "NAME": os.environ.get("SQL_DATABASE"),
@@ -105,7 +107,13 @@ DATABASES = {
         "PORT": os.environ.get("SQL_PORT"),
     }
 }
-
+else:
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
