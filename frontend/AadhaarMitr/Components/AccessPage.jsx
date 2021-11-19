@@ -30,13 +30,10 @@ function AddressScreen(props) {
     const [careOf, setCareOf] = useState('');
     const [house, setHouse] = useState(props.route.params.data['@house']);
     const [street, setStreet] = useState(props.route.params.data['@street']);
-    const [landmark, setLandmark] = useState(props.route.params.data['@landmark']);
-    const [locality, setLocality] = useState(props.route.params.data['@loc']);
+    const [landmark, setLandmark] = useState(props.route.params.data['@lm']);
     const [vtc, setVtc] = useState(props.route.params.data['@vtc']);
-    const [subdistrict, setSubdistrict] = useState(props.route.params.data['@subdist']);
     const [district, setDistrict] = useState(props.route.params.data['@dist']);
     const [pincode, setPincode] = useState(props.route.params.data['@pc']);
-    const [postOffice, setPostOffice] = useState(props.route.params.data['@po']);
     const [state, setState] = useState(props.route.params.data['@state']);
     const [country, setCountry] = useState(props.route.params.data['@country']);
 
@@ -98,16 +95,13 @@ function AddressScreen(props) {
 
     const saveAddress = () => {
         const addressObject = {
-            '@careof': careOf,
+            '@co': careOf,
             '@house': house,
             '@street': street,
-            '@landmark': landmark,
-            '@loc': locality,
+            '@lm': landmark,
             '@vtc': vtc,
-            '@subdist': subdistrict,
             '@dist': district,
             '@pc': pincode,
-            '@po': postOffice,
             '@state': state,
             '@country': country
         };
@@ -153,8 +147,7 @@ function AddressScreen(props) {
                 <Text style={styles.subheading}>{'You can make minor edits to your address if required.'}</Text>
                 <TextInput style={styles.inputBox} value={house} onChangeText={(text) => setHouse(text)}/>
                 <TextInput style={styles.inputBox} value={street} onChangeText={(text) => setStreet(text)}/>
-                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={landmark.length > 0 ? ('Near ' + landmark) : '' + postOffice.length > 0 ? ', ' + postOffice : ''} editable={false}/>
-                { subdistrict.length > 0 || locality.length > 0 ? <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={subdistrict.length > 0 ? subdistrict : '' + locality.length > 0 ? (', ' + locality) : ''} editable={false}/> : '' }
+                <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={landmark.length > 0 ? ('Near ' + landmark) : ''} editable={false}/>
                 <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={district + ', ' + vtc} editable={false}/>
                 <TextInput style={[styles.inputBox, { color: '#00000088' }]} value={state + ', ' + pincode + ', ' + country} editable={false}/>
                 <Text style={[styles.resendText, { color: '#FFFFFF' }]}>Resend OTP</Text>

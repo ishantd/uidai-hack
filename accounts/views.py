@@ -119,8 +119,10 @@ class GetEKYC(APIView):
             
             if request_obj.request_approved == True:
                 user_device = UserDevice.objects.filter(user=request_obj.request_from.user).last()
-                trigger_single_notification(user_device.arn, "Request Approved", f'{request_obj.request_to.name if request_obj.request_to else "User"} has approved your request for address share. Please verify.')
-            
+                try:
+                    trigger_single_notification(user_device.arn, "Request Approved", f'{request_obj.request_to.name if request_obj.request_to else "User"} has approved your request for address share. Please verify.')
+                except:
+                    print("f")
             return JsonResponse({"status": "okay"}, status=200)
 
         if data_from_api['status'] == 'Failed':
@@ -215,7 +217,10 @@ class FastKYCEKyc(APIView):
                 request_obj.save()
                 if request_obj.request_approved == True:
                     user_device = UserDevice.objects.filter(user=request_obj.request_from.user).last()
-                    trigger_single_notification(user_device.arn, "Request Approved", f'{request_obj.request_to.name if request_obj.request_to else "User"} has approved your request for address share. Please verify.')
+                    try:
+                        trigger_single_notification(user_device.arn, "Request Approved", f'{request_obj.request_to.name if request_obj.request_to else "User"} has approved your request for address share. Please verify.')
+                    except:
+                        print("F")
             return JsonResponse({"status": "okay", "token": user_token.key if not request_id else None}, status=200)
         try:
             if otp_response['errCode']:
@@ -270,6 +275,7 @@ class LinkedAccounts(APIView):
                 "photo": r.request_from.photo.url if r.request_from else None,
                 "address": ura.rented_address.address_object
             }
+            print(data)
             linked_data.append(data)
         return JsonResponse({"status": "success", "data": linked_data}, status=200)
     

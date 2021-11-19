@@ -11,7 +11,9 @@ tz = pytz.timezone('Asia/Kolkata')
 
 def address_request(request):
     uidb64 = request.GET.get('uid', False)
+    print(uidb64)
     if uidb64:
+        uidb64 = uidb64.replace("/", "")
         uid_data = urlsafe_base64_decode(uidb64).decode()
         mobile, pk = uid_data.split('-')
         try:

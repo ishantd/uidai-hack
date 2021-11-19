@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 const axiosUnauthorizedInstance = axios.create({
-    baseURL: 'https://aadhaarmitr.tech',
+    baseURL: 'http://192.168.5.163:8000',
     timeout: 10000,
 });
 
 const axiosInstance = axios.create({
-    baseURL: 'https://aadhaarmitr.tech',
+    baseURL: 'http://192.168.5.163:8000',
     timeout: 10000,
 });
 

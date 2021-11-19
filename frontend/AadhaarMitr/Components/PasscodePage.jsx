@@ -52,7 +52,7 @@ function PasscodeOTPScreen(props) {
             setResendText(`Please Wait`);
             resendTimer = 60;
             setResendTrigger(!resendTrigger);
-            setTransactionId(response.data.data.txnId);
+            setTransactionId(response.data.txnId);
         })
         .catch((error) => console.error(error));
     }
@@ -150,7 +150,7 @@ function PasscodeCaptchaScreen(props) {
         axiosInstance(requestOptions)
         .then((response) => {
             console.log(response.data);
-            navigation.navigate("PasscodeOTPScreen", { aadhaar: aadhaar, data: response.data, captchaTxnId: captchaTxnId, captcha: captcha, id: props.route.params.id });
+            navigation.navigate("PasscodeOTPScreen", { aadhaar: aadhaar, data: response, captchaTxnId: captchaTxnId, captcha: captcha, id: props.route.params.id });
             setProcessingRequest(false);
         })
         .catch((error) => { console.error(error); setProcessingRequest(false); });

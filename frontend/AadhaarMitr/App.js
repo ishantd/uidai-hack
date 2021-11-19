@@ -57,7 +57,7 @@ function App() {
 
   	const [loaded, setLoaded] = useState(false);
   	const [defaultScreen, setDefaultScreen] = useState('LoginScreen');
-	const [authenticated, setAuthenticated] = useState(false);
+	const [authenticated, setAuthenticated] = useState(true);
 
   	useEffect(() => {
     	async function fetchValue() {    

@@ -5,7 +5,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 
-const baseURL = 'https://aadhaarmitr.tech';
+const baseURL = 'http://192.168.5.163:8000';
 
 function RequestAccepted(props) {
     const navigation = useNavigation();

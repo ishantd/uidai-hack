@@ -13,6 +13,7 @@ from address.utils import create_request_sms, send_message_using_sns
 from address.models import Address, TenantRequestToLandlord, UserRentedAddress
 
 import os
+import json
 import pytz
 from zipfile import ZipFile
 from datetime import datetime
@@ -83,7 +84,7 @@ class RequestToLandlord(APIView):
             user = None
         
         # create entry in db
-        tenant_request, tenant_request_created = TenantRequestToLandlord.objects.get_or_create(
+        tenant_request = TenantRequestToLandlord.objects.create(
             request_from=request.user.profile,
             request_to=user,
             request_to_mobile=mobileNumber
@@ -98,9 +99,14 @@ class RequestToLandlord(APIView):
         
         if user:
             user_device = UserDevice.objects.filter(user=user.user).last()
+            current_site = get_current_site(request)
             request_sms = create_request_sms(tenant_request.request_from.name, mobileNumber, tenant_request.id, current_site, tenant_request.expires_after)
             send_sms = send_message_using_sns(mobileNumber, request_sms)
-            t = trigger_single_notification(user_device.arn, "Request Received", f'{tenant_request.request_from.name} has sent you a request for address approval. Please respond.')
+            print(user_device)
+            try:
+                t = trigger_single_notification(user_device.arn, "Request Received", f'{tenant_request.request_from.name} has sent you a request for address approval. Please respond.')
+            except:
+                print("HE")
         return JsonResponse({"status": "ok", "data": model_to_dict(tenant_request)}, status=200)
 
 class ChangeAddressRequestStatus(APIView):
@@ -124,7 +130,8 @@ class ChangeAddressRequestStatus(APIView):
             tenant_request.request_declined = True
             tenant_request.request_declined_timestamp = datetime.now(tz)
             user_device = UserDevice.objects.filter(user=tenant_request.request_from.user).last()
-            trigger_single_notification(user_device.arn, "Request Declined", f'{tenant_request.request_to.name if tenant_request.request_to else "User"} has declined your request for address share')
+            if user_device:
+                trigger_single_notification(user_device.arn, "Request Declined", f'{tenant_request.request_to.name if tenant_request.request_to else "User"} has declined your request for address share')
         
         tenant_request.save()
 
@@ -139,16 +146,24 @@ class EnterPincodeAndGetAddress(APIView):
         tenant_request = TenantRequestToLandlord.objects.get(id=request_id)
         
         user_kyc = tenant_request.kyc
-        zip_file_url = user_kyc.datafile.path
-        with ZipFile(zip_file_url) as zf:
-            zf.extractall(pwd=bytes(code, 'utf-8'))
-        xml_filename = user_kyc.file_name.replace('zip', 'xml')
-        with open(xml_filename, 'r') as f:
-            xml_string_data = f.read()
-        
-        xml_data_dict = xml_to_dict(xml_string_data)
-        uid_data = xml_data_dict["OfflinePaperlessKyc"]["UidData"]
-        poa_data = uid_data["Poa"]
+        zip_file_url = user_kyc.datafile
+        if zip_file_url:
+            zip_file_url = zip_file_url.path
+            with ZipFile(zip_file_url) as zf:
+                zf.extractall(pwd=bytes(code, 'utf-8'))
+            xml_filename = user_kyc.file_name.replace('zip', 'xml')
+            with open(xml_filename, 'r') as f:
+                xml_string_data = f.read()
+            xml_data_dict = xml_to_dict(xml_string_data)
+            uid_data = xml_data_dict["OfflinePaperlessKyc"]["UidData"]
+            poa_data = uid_data["Poa"]
+            if os.path.exists(xml_filename):
+                os.remove(xml_filename)
+        else:
+            xml_string_data = user_kyc.xml_raw_data
+            xml_data_dict = xml_to_dict(xml_string_data)
+            uid_data = xml_data_dict["KycRes"]["UidData"]
+            poa_data = uid_data["Poa"]
         
         original_address, original_address_created = Address.objects.get_or_create(address_object=poa_data)
         
@@ -158,9 +173,6 @@ class EnterPincodeAndGetAddress(APIView):
         
         user_rented_address.original_address = original_address
         user_rented_address.save()
-
-        if os.path.exists(xml_filename):
-            os.remove(xml_filename)
         
         return JsonResponse({"status": "success", "data": poa_data}, status=200)
 
@@ -202,6 +214,7 @@ class RequestApprovedAndSaveAddress(APIView):
         
         if tenant_request.request_to:
             user_device = UserDevice.objects.filter(user=tenant_request.request_to.user).last()
-            trigger_single_notification(user_device.arn, "Address Share Completed", f'{tenant_request.request_from.name} has completed the procedure for address share')
+            if user_device:
+                trigger_single_notification(user_device.arn, "Address Share Completed", f'{tenant_request.request_from.name} has completed the procedure for address share')
         
         return JsonResponse({"status": "success: request "}, status=200)
