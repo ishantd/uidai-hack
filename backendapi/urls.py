@@ -3,6 +3,11 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls.conf import include
 from django.conf.urls.static import static
+from django.contrib import admin
+
+admin.site.site_header = 'AadhaarMitr Adminsitration'
+admin.site.index_title = 'AadhaarMitr Database'
+admin.site.site_title = 'AadhaarMitr Admin Panel'
 
 
 urlpatterns = [
