@@ -3,6 +3,7 @@ import { Text, TextInput, View, StyleSheet, ScrollView, Image, TouchableOpacity,
 import { axiosUnauthorizedInstance, axiosInstance, setClientToken  } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import Toast, { DURATION } from 'react-native-easy-toast'
 
 function PasscodeOTPScreen(props) {
     const [OTP, setOTP] = useState("");
@@ -15,6 +16,7 @@ function PasscodeOTPScreen(props) {
     let resendTimer = 60;
 
     const navigation = useNavigation();
+    const toastRef = useRef(null);
 
     useEffect(() => {
         setOTP();
@@ -54,7 +56,7 @@ function PasscodeOTPScreen(props) {
             setResendTrigger(!resendTrigger);
             setTransactionId(response.data.txnId);
         })
-        .catch((error) => console.error(error));
+        .catch((error) => toastRef.current.show("An error occurred", 2500, () => {}));
     }
 
     const getEKYC = () => {
@@ -71,7 +73,7 @@ function PasscodeOTPScreen(props) {
             console.log(response);
             if (response.data.status === 'okay') clearRequest();
         })
-        .catch((error) => console.error(error.message));
+        .catch((error) => toastRef.current.show("An error occurred while requesting e-KYC", 2500, () => {}));
     }
 
     const clearRequest = () => {
@@ -83,7 +85,7 @@ function PasscodeOTPScreen(props) {
 
         axiosInstance(requestOptions)
         .then((response) => { console.log(response); navigation.navigate('HomeScreen'); })
-        .catch((error) => { console.error(error); });
+        .catch((error) => { toastRef.current.show("An error occurred while processing the request", 2500, () => {}); });
     }
 
     return (
@@ -98,6 +100,7 @@ function PasscodeOTPScreen(props) {
             <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/> 
             <Text style={styles.buttonText}>{'Verify'}</Text>
         </TouchableOpacity>
+        <Toast ref={(toast) => toastRef.current = toast} style={{ backgroundColor: '#EE3B4E' }} textStyle={{ fontSize: 16, fontFamily: 'Roboto_400Regular', color: '#FFFFFF' }}/>
       </View>
     );
 }
@@ -109,6 +112,7 @@ function PasscodeCaptchaScreen(props) {
     const [captchaImage, setCaptchaImage] = useState();
 
     const navigation = useNavigation();
+    const toastRef = useRef(null);
 
     const [processingRequest, setProcessingRequest] = useState(false);
 
@@ -129,6 +133,11 @@ function PasscodeCaptchaScreen(props) {
     }*/
 
     const sendOTP = () => {
+        if (aadhaar.length !== 12) {
+            toastRef.current.show("Please enter a valid Aadhaar Number", 2500, () => {});
+            return;
+        }
+
         setProcessingRequest(true);
 
         /*const requestOptions = {
@@ -153,7 +162,7 @@ function PasscodeCaptchaScreen(props) {
             navigation.navigate("PasscodeOTPScreen", { aadhaar: aadhaar, data: response, captchaTxnId: captchaTxnId, captcha: captcha, id: props.route.params.id });
             setProcessingRequest(false);
         })
-        .catch((error) => { console.error(error); setProcessingRequest(false); });
+        .catch((error) => { console.error(error); setProcessingRequest(false); toastRef.current.show("An error occurred", 2500, () => {}); });
     }
 
     return (
@@ -180,6 +189,7 @@ function PasscodeCaptchaScreen(props) {
                     </React.Fragment>
                 }
             </TouchableOpacity>
+            <Toast ref={(toast) => toastRef.current = toast} style={{ backgroundColor: '#EE3B4E' }} textStyle={{ fontSize: 16, fontFamily: 'Roboto_400Regular', color: '#FFFFFF' }}/>
         </View>
     );
 }

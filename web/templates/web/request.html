@@ -15,7 +15,7 @@
                     <img src="{% static 'web/images/aadhaar-image.png' %}" style="width: 7em; height: 7em; object-fit: contain; background-radius: 4em;"/>
                 </div>
                 <p style="font-family: 'Sora', sans-serif; font-size: 2em; font-weight: 600;">AadhaarMitr</p>
-                <div style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center; background-color: #FFFFFF; border-radius: 0.25em; padding: 0.75em 2em; width: 25vw; border-width: 2px; border-style: solid; border-color: #000000;">
+                <div style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center; background-color: #FFFFFF; border-radius: 0.25em; padding: 0.75em 2em; width: 25vh; border-width: 2px; border-style: solid; border-color: #000000;">
                     <div style="width: 4em; height: 4em; align-items: center; justify-content: center; display: flex; background-color: #000000; border-radius: 2em; object-fit: contain; overflow: hidden;">
                         <img src="{{image}}" style="width: 4em; height: 4em; object-fit: contain; background-radius: 2em;"/>
                     </div>
@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <form id="verify-otp" style="display: flex; flex-direction: column;" action="{% url 'accounts:ekyc-get-data' %}" method="POST">
-                    <button type="submit" id="start-request" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vw; margin: 0.5em 2em;">Accept Request</button>
+                    <button type="submit" id="start-request" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vh; margin: 0.5em 2em;">Accept Request</button>
                 </form>   
             </div>
         </div>
@@ -37,9 +37,9 @@
                 <p style="font-family: 'Sora', sans-serif; font-size: 2em; font-weight: 600;">AadhaarMitr</p>
                 <form id="send-otp" style="display: flex; flex-direction: column;" action="{% url 'accounts:newekyc-send-otp' %}" method="POST">
                     <div>
-                        <input type="text" name="aadhaar" id="uid" maxlength="12" placeholder="Enter your Aadhaar Number" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vw; margin: 0.5em 2em;">
+                        <input type="text" name="aadhaar" id="uid" maxlength="12" placeholder="Enter your Aadhaar Number" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vh; margin: 0.5em 2em;">
                     </div>
-                    <button type="submit" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vw; margin: 0.5em 2em;">Proceed</button>
+                    <button type="submit" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vh; margin: 0.5em 2em;">Proceed</button>
                 </form>   
             </div>
         </div>
@@ -51,12 +51,12 @@
                 <p style="font-family: 'Sora', sans-serif; font-size: 2em; font-weight: 600;">AadhaarMitr</p>
                 <form id="verify-otp" style="display: flex; flex-direction: column;" action="{% url 'accounts:newekyc-getekyc' %}" method="POST">
                     <div>
-                        <input type="text" name="otp" id="otp" maxlength="6" placeholder="Enter OTP Recieved on your Phone" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vw; margin: 0.5em 2em;">
+                        <input type="text" name="otp" id="otp" maxlength="6" placeholder="Enter OTP Recieved on your Phone" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vh; margin: 0.5em 2em;">
                     </div>
                     <div>
-                        <input type="text" name="passcode" id="passcode" maxlength="4" placeholder="Create a 4 digit Passcode" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vw; margin: 0.5em 2em;">
+                        <input type="text" name="passcode" id="passcode" maxlength="4" placeholder="Create a 4 digit Passcode" style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400; outline: none; border-radius: 0.25em; padding: 0.5em 1em; border-width: 2px; border-color: #000000; width: 25vh; margin: 0.5em 2em;">
                     </div>
-                    <button type="submit" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vw; margin: 0.5em 2em;">Grant Address Access</button>
+                    <button type="submit" style="font-family: 'Sora', sans-serif; font-size: 1em; font-weight: 600; background-color: #000000; color: #FFFFFF; outline: none; border-radius: 0.25em; padding: 0.75em 2em; border-width: 0; width: 25vh; margin: 0.5em 2em;">Grant Address Access</button>
                 </form>   
             </div>
         </div>
@@ -66,7 +66,7 @@
                     <img src="{% static 'web/images/aadhaar-image.png' %}" style="width: 7em; height: 7em; object-fit: contain; background-radius: 4em;"/>
                 </div>
                 <p style="font-family: 'Sora', sans-serif; font-size: 2em; font-weight: 600;">AadhaarMitr</p>
-                <div style="width: 25vw;">
+                <div style="width: 25vh;">
                     <p style="font-family: 'Roboto', sans-serif; font-size: 1em; font-weight: 400;">Your request has been processed successfully. Please close this window for security reasons.</p>
                 </div>
             </div>

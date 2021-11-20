@@ -6,6 +6,7 @@ import { RequestIncoming, RequestOutgoing } from './RequestPages';
 import * as Animatable from 'react-native-animatable';
 import { axiosInstance, clearClientToken } from '../axiosInstance';
 import * as SecureStore from 'expo-secure-store';
+import Toast, { DURATION } from 'react-native-easy-toast'
 
 async function clear(key) {
     await SecureStore.deleteItemAsync(key);
@@ -17,6 +18,7 @@ function HomePage(props) {
 
     const navigation = useNavigation();
     const focused = useIsFocused();
+    const toastRef = useRef(null);
 
     const transition = { 0: { opacity: 0 }, 1: { opacity: 1 } };
     const slideIn = { 0: { translateY: Dimensions.get('window').height }, 1: { translateY: 0 } };
@@ -42,6 +44,10 @@ function HomePage(props) {
         }
     }, [focused]);
 
+    useEffect(() => navigation.addListener('beforeRemove', (e) => {
+        return;
+    }), [navigation]);
+
     const getProfileData = () => {
         const requestOptions = {
             method: 'get',
@@ -64,10 +70,15 @@ function HomePage(props) {
 
         axiosInstance(requestOptions)
         .then((response) => { console.log(response); setPendingRequests(response.data.data.requests_recieved); })
-        .catch((error) => { console.error(error); });
+        .catch((error) => { console.error(error); toastRef.current.show("Error loading requests", 2500, () => {}); });
     }
 
     const sendLandlordRequest = () => {
+        if (landlordNumber.length != 10) {
+            toastRef.current.show("Please enter a valid phone number", 2500, () => {});
+            return;
+        }
+
         const requestOptions = {
             method: 'post',
             url: '/api/address/send-request-to-landlord/',
@@ -76,7 +87,7 @@ function HomePage(props) {
 
         axiosInstance(requestOptions)
         .then((response) => { console.log(response); })
-        .catch((error) => { console.error(error); });
+        .catch((error) => { console.error(error); toastRef.current.show("Error sending request. Please try again later", 2500, () => {}); });
     }
 
     return (
@@ -115,6 +126,7 @@ function HomePage(props) {
                 <Ionicons name={'log-out'} size={24} color={'#FFFFFF'}/> 
                 <Text style={styles.buttonText}>{'Log Out'}</Text>
             </TouchableOpacity>
+            <Toast ref={(toast) => toastRef.current = toast} style={{ backgroundColor: '#EE3B4E' }} textStyle={{ fontSize: 16, fontFamily: 'Roboto_400Regular', color: '#FFFFFF' }}/>
         </ScrollView>
         {
             showBottomDrawer ? 

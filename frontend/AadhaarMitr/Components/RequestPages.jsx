@@ -4,6 +4,7 @@ import { axiosUnauthorizedInstance, axiosInstance } from '../axiosInstance';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
+import Toast, { DURATION } from 'react-native-easy-toast'
 
 const baseURL = 'https://aadhaarmitr.tech';
 
@@ -202,6 +203,7 @@ function InboundRequestScreen(props) {
 function OutboundboundRequestScreen(props) {
     const navigation = useNavigation();
     const focused = useIsFocused();
+    const toastRef = useRef(null);
 
     const [showBottomDrawer, setShowBottomDrawer] = useState(false);
     const [passcode, setPasscode] = useState('');
@@ -244,7 +246,7 @@ function OutboundboundRequestScreen(props) {
 
         axiosInstance(requestOptions)
         .then((response) => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("AddressScreen", { data: response.data.data, requestId: selectedRequest }), 500); setPasscode(""); })
-        .catch((error) => { console.error(error); });
+        .catch((error) => { toastRef.current.show("Invalid Passcode entered. Please try again.", 2500, () => {}); });
     }
 
     return (
@@ -254,6 +256,7 @@ function OutboundboundRequestScreen(props) {
                 <View style={styles.requestSection}>
                     { outboundRequests.map((request, index) => request.request_approved ? request.request_completed_by_tenant ? <RequestCompleted key={index} name={request.name} phone={request.phone} url={request.photo}/> : <RequestAccepted key={index} name={request.name} phone={request.phone} url={request.photo} accessAddress={() => { setSelectedRequest(request.id); setClosing(false); setPageAnimation(slideIn); setBackgroundAnimation(transition); setShowBottomDrawer(true); }} {...request}/> : request.name !== null ? <RequestOutgoing key={index} name={request.name} phone={request.phone} url={request.photo} {...request}/> : <RequestOutgoingNoUser key={index} phone={request.phone} {...request}/> ) }
                 </View>
+                <Toast ref={(toast) => toastRef.current = toast} style={{ backgroundColor: '#EE3B4E' }} textStyle={{ fontSize: 16, fontFamily: 'Roboto_400Regular', color: '#FFFFFF' }}/>
             </ScrollView>
             {
                 showBottomDrawer ? 

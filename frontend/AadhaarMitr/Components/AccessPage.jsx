@@ -4,6 +4,7 @@ import { axiosUnauthorizedInstance, axiosInstance, setClientToken  } from '../ax
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
+import Toast, { DURATION } from 'react-native-easy-toast'
 
 function AddressScreen(props) {
     const [showBottomDrawer, setShowBottomDrawer] = useState(false);
@@ -12,6 +13,7 @@ function AddressScreen(props) {
 
     const navigation = useNavigation();
     const focused = useIsFocused();
+    const toastRef = useRef(null);
 
     const transition = { 0: { opacity: 0 }, 1: { opacity: 1 } };
     const slideIn = { 0: { translateY: Dimensions.get('window').height }, 1: { translateY: 0 } };
@@ -49,7 +51,7 @@ function AddressScreen(props) {
         let oldAddrStr = '';
         for (var key in props.route.params.data) {
             if (props.route.params.data.hasOwnProperty(key)) {
-                newAddrStr += props.route.params.data[key] + ' , ';
+                oldAddrStr += props.route.params.data[key] + ' , ';
             }
         }
         setOldAddressString(oldAddrStr);
@@ -69,6 +71,11 @@ function AddressScreen(props) {
     }, [resendTrigger]);
 
     const sendOTP = () => {
+        if (aadhaar.length !== 12) {
+            toastRef.current.show("Please enter valid Aadhaar number", 2500, () => {});
+            return;
+        }
+
         setProcessingRequest(true);
 
         const requestOptions = {
@@ -85,7 +92,7 @@ function AddressScreen(props) {
             setTxnId(response.data.txnId);
         })
         .then(() => { setScreen('OTP'); setProcessingRequest(false); })
-        .catch((error) => { console.error(error); setProcessingRequest(false); });
+        .catch((error) => { console.error(error); setProcessingRequest(false); toastRef.current.show("An error occurred", 2500, () => {}); });
     }
 
     const verifyOTP = () => {
@@ -103,7 +110,7 @@ function AddressScreen(props) {
                 saveAddress();
             }
         })
-        .catch((error) => { console.error(error); setProcessingRequest(false); });
+        .catch((error) => { console.error(error); setProcessingRequest(false); toastRef.current.show("Incorrect OTP entered.", 2500, () => {}); });
     }
 
     const saveAddress = () => {
@@ -138,7 +145,7 @@ function AddressScreen(props) {
             setProcessingRequest(false);
         })
         .then(() => { setClosing(true); setBackgroundAnimation(transitionOut); setPageAnimation(slideOut); setTimeout(() => navigation.navigate("HomeScreen"), 500); })
-        .catch((error) => { console.error(error); setProcessingRequest(false); });
+        .catch((error) => { console.error(error); setProcessingRequest(false); toastRef.current.show("New Address too far from old address. Please enter an address in the same area.", 2500, () => {}); });
     }
 
     const resendOTP = () => {
@@ -157,7 +164,7 @@ function AddressScreen(props) {
             setResendTrigger(!resendTrigger);
             setTxnId(response.data.txnId);
         })
-        .catch((error) => console.error(error));
+        .catch((error) => toastRef.current.show("An error occurred", 2500, () => {}));
     }
 
     return(
@@ -176,6 +183,7 @@ function AddressScreen(props) {
                     <Ionicons name={'checkmark-circle'} size={24} color={'#FFFFFF'}/> 
                     <Text style={styles.buttonText}>{'Save Address'}</Text>
                 </TouchableOpacity>
+                <Toast ref={(toast) => toastRef.current = toast} style={{ backgroundColor: '#EE3B4E' }} textStyle={{ fontSize: 16, fontFamily: 'Roboto_400Regular', color: '#FFFFFF' }}/>
             </ScrollView>
             {
                 showBottomDrawer ? 

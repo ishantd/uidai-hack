@@ -28,6 +28,7 @@ function OTPScreen(props) {
     const [processingRequest, setProcessingRequest] = useState(false);
 
     const navigation = useNavigation();
+    const toastRef = useRef(null);
 
     useEffect(() => {
         setData(props.route.params.data);
@@ -66,6 +67,11 @@ function OTPScreen(props) {
     }
 
     const getEKYC = () => {
+        if (OTP.length !== 6) {
+            toastRef.current.show("Please enter a valid OTP", 2500, () => {});
+            return;
+        }
+
         setProcessingRequest(true);
 
         delete axiosUnauthorizedInstance.defaults.headers.common['Authorization'];
@@ -77,7 +83,7 @@ function OTPScreen(props) {
             url: '/api/accounts/new-ekyc/get-ekyc/',
             data: { uid: aadhaar, txnId: data.txnId, otp: OTP },
         }
-        axiosUnauthorizedInstance(requestOptions).then((response) => { save("token", response.data.token); setClientToken(response.data.token); }).then(() => { getAndSetMessagingToken(); }).catch((error) => { console.error(error, "Error in getEKYC"); setProcessingRequest(false); });
+        axiosUnauthorizedInstance(requestOptions).then((response) => { save("token", response.data.token); setClientToken(response.data.token); }).then(() => { getAndSetMessagingToken(); }).catch((error) => { console.error(error, "Error in getEKYC"); toastRef.current.show("Please check your OTP and try again", 2500, () => {}); setProcessingRequest(false); });
     }
 
     async function getAndSetMessagingToken() {
@@ -92,7 +98,7 @@ function OTPScreen(props) {
         
         axiosInstance(requestOptions)
         .then((response) => { navigation.navigate("HomeScreen"); })
-        .catch((error) => { console.error(error, "Error in set token"); });
+        .catch((error) => { console.error(error, "Error in set token"); toastRef.current.show("An unknown error occured", 2500, () => {});  });
     }
 
     return (
@@ -112,6 +118,7 @@ function OTPScreen(props) {
                 </React.Fragment>
             }
         </TouchableOpacity>
+        <Toast ref={(toast) => toastRef.current = toast} style={{ backgroundColor: '#EE3B4E' }} textStyle={{ fontSize: 16, fontFamily: 'Roboto_400Regular', color: '#FFFFFF' }}/>
       </View>
     );
 }
@@ -126,7 +133,7 @@ function LoginScreen(props) {
 
     const sendOTP = () => {
         if (aadhaar.length !== 12) {
-            toastRef.current.show("Please enter a valid Aadhaar Number", 1500, () => {});
+            toastRef.current.show("Please enter a valid Aadhaar Number", 2500, () => {});
             return;
         }
 
@@ -145,7 +152,7 @@ function LoginScreen(props) {
             navigation.navigate("OTPScreen", { aadhaar: aadhaar, data: response.data });
             setProcessingRequest(false);
         })
-        .catch((error) => { console.error(error); setProcessingRequest(false); });
+        .catch((error) => { console.error(error); setProcessingRequest(false); toastRef.current.show("An error occured while attempting to send OTP", 2500, () => {}); });
     }
 
     return (

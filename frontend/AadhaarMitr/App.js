@@ -102,12 +102,12 @@ function App() {
       		<NavigationContainer>
       		  	<Stack.Navigator initialRouteName={defaultScreen}>
       		    	<Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }}/>
-      		    	<Stack.Screen name="OTPScreen" component={OTPScreen} options={{ headerShown: false }}/>
-      		    	<Stack.Screen name="HomeScreen" component={HomePage} options={{ headerShown: false }}/>
+      		    	<Stack.Screen name="OTPScreen" component={OTPScreen} options={{ headerShown: false, gestureEnabled: false }}/>
+      		    	<Stack.Screen name="HomeScreen" component={HomePage} options={{ headerShown: false, gestureEnabled: false }}/>
       		    	<Stack.Screen name="RequestsScreen" component={RequestsScreens} options={{ title: 'Requests' }}/>
-      		    	<Stack.Screen name="PasscodeOTPScreen" component={PasscodeOTPScreen} options={{ title: 'Accept Address Request', headerBackVisible: false }}/>
-					<Stack.Screen name="PasscodeCaptchaScreen" component={PasscodeCaptchaScreen} options={{ title: 'Accept Address Request', headerBackVisible: false }}/>
-      		    	<Stack.Screen name="AddressScreen" component={AddressScreen} options={{ title: 'Edit Address', headerBackVisible: false }}/>
+      		    	<Stack.Screen name="PasscodeOTPScreen" component={PasscodeOTPScreen} options={{ title: 'Accept Address Request', headerBackVisible: false, gestureEnabled:false }}/>
+					<Stack.Screen name="PasscodeCaptchaScreen" component={PasscodeCaptchaScreen} options={{ title: 'Accept Address Request', headerBackVisible: false, gestureEnabled: false }}/>
+      		    	<Stack.Screen name="AddressScreen" component={AddressScreen} options={{ title: 'Edit Address', headerBackVisible: false, gestureEnabled: false }}/>
       		    	<Stack.Screen name="AddressSharingScreen" component={AddressSharingScreen} options={{ title: 'Linked Accounts' }}/> 
 					<Stack.Screen name="CameraScreen" component={CameraPage} options={{ headerShown: false }}/>
 					<Stack.Screen name="QRScreen" component={QRPage} options={{ headerShown: false }}/>
