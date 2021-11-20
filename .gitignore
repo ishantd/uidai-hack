@@ -24,6 +24,7 @@ data.json
 
 # Java class files
 *.class
+/static/
 
 # Generated files
 bin/
